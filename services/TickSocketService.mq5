@@ -96,9 +96,12 @@ void setMinMax(double bid, double ask) {
   
 void SocketInit(string symbol) {
    socket=SocketCreate();
+   
    int port;
    bool value = currencyPorts.TryGetValue(symbol, port);
-   SocketConnect(socket, "localhost", port, 1000);
+   string server = "localhost";
+   bool connect = SocketConnect(socket, server, port, 5000);
+   Print("socket create ", socket, " ", port, " ", connect, " ", _LastError);
    uchar data[];
    int len = StringToCharArray("mt5", data) - 1;
    SocketSend(socket, data, len);
@@ -113,30 +116,31 @@ void OnStart()
       MqlTick latestTick;
       string firstChartSymbol = ChartSymbol(ChartFirst());
       Init(firstChartSymbol);
+      Print(SocketIsConnected(socket));
       string prevTick = "";
       // Print(ChartSymbol(firstChart), " ii ", ChartSymbol(ChartNext(firstChart)));
-      while(true) {
-         SymbolInfoTick(firstChartSymbol, latestTick);
-         double bid = latestTick.bid;
-         double ask = latestTick.ask;
-         string tickTime = TimeToString(latestTick.time, TIME_DATE|TIME_SECONDS);
-         setMinMax(bid, ask);
-         string payload = 
-            StringFormat("{\"pair\": \"%s\", \"time\": \"%s\", \"bid\": %f, \"ask\": %f, \"prevbid\": %f, \"prevask\": %f, \"minbid\": %f, \"minask\": %f, \"maxbid\": %f, \"maxask\": %f}",
-            firstChartSymbol, tickTime, bid, ask, prevBid, prevAsk, minBid, minAsk, maxBid, maxAsk);
-         string currentTick = DoubleToString(latestTick.bid) + " " + DoubleToString(latestTick.ask) + " " + TimeToString(latestTick.time);
-         if(prevTick != currentTick) {
-            
-            uchar data[];
-            int len = StringToCharArray(payload, data) - 1;
-            SocketSend(socket, data, len);
-            prevBid = bid;
-            prevAsk = ask;
-            Print("servvvvice ", payload);
-            prevTick = currentTick;
-         }
-         
-      }
+//      while(true) {
+//         SymbolInfoTick(firstChartSymbol, latestTick);
+//         double bid = latestTick.bid;
+//         double ask = latestTick.ask;
+//         string tickTime = TimeToString(latestTick.time, TIME_DATE|TIME_SECONDS);
+//         setMinMax(bid, ask);
+//         string payload = 
+//            StringFormat("{\"pair\": \"%s\", \"time\": \"%s\", \"bid\": %f, \"ask\": %f, \"prevbid\": %f, \"prevask\": %f, \"minbid\": %f, \"minask\": %f, \"maxbid\": %f, \"maxask\": %f}",
+//            firstChartSymbol, tickTime, bid, ask, prevBid, prevAsk, minBid, minAsk, maxBid, maxAsk);
+//         string currentTick = DoubleToString(latestTick.bid) + " " + DoubleToString(latestTick.ask) + " " + TimeToString(latestTick.time);
+//         if(prevTick != currentTick) {
+//            
+//            uchar data[];
+//            int len = StringToCharArray(payload, data) - 1;
+//            SocketSend(socket, data, len);
+//            prevBid = bid;
+//            prevAsk = ask;
+//            Print("servvvvice ", payload);
+//            prevTick = currentTick;
+//         }
+//         
+//      }
   }
   
   
