@@ -2,12 +2,12 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-currencyPair = ["EURUSD"]
+currencyPair = ["EURUSD", "AUDUSD"]
 
 if __name__ == "__main__":
     sys.path.insert(1, os.getcwd()+"/helpers/")
-    from tick_helper import TickHelper
-    tickHelp = TickHelper(True)
+    from client_socket_helper import ClientSocketHelper
+    tickHelp = ClientSocketHelper()
     tickHelp.setTimeout(3)
     while True:
         for cp in currencyPair:
