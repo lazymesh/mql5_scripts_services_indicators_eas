@@ -69,7 +69,8 @@ def mt5ReceiveBroadcast(client, key):
 
 def listenForClient(key):
     client, addresss = sockets[key].accept()
-    isMt5 = client.recv(3).decode('utf-8')
+    isMt5 = client.recv(10).decode('utf-8')
+    print(isMt5)
     if isMt5 == "mt5":
         print(f"connected mt5 for {key} on {client.getsockname()}")
         mt5clients.append(client)

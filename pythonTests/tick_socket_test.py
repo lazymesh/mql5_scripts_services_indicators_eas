@@ -7,7 +7,7 @@ currencyPair = ["EURUSD"]
 if __name__ == "__main__":
     sys.path.insert(1, os.getcwd()+"/helpers/")
     from tick_helper import TickHelper
-    tickHelp = TickHelper()
+    tickHelp = TickHelper(True)
     tickHelp.setTimeout(3)
     while True:
         for cp in currencyPair:

@@ -6,38 +6,13 @@ import sys
 SOCKET_TIMEOUT = 20
 
 CURRENCYPAIR_PORT = {
-    "AUDUSD": 9070,
-    "AUDJPY": 9071,
-    "AUDCAD": 9072,
-    "AUDNZD": 9073,
-    "AUDCHF": 9074,
-    "CADJPY": 9075,
-    "CADCHF": 9076,
-    "CHFJPY": 9077,
-    "EURUSD": 9078,
-    "EURJPY": 9079,
-    "EURGBP": 9080,
-    "EURCAD": 9081,
-    "EURAUD": 9082,
-    "EURNZD": 9083,
-    "EURCHF": 9084,
-    "GBPUSD": 9085,
-    "GBPJPY": 9086,
-    "GBPCAD": 9087,
-    "GBPAUD": 9088,
-    "GBPNZD": 9089,
-    "GBPCHF": 9090,
-    "NZDUSD": 9091,
-    "NZDJPY": 9092,
-    "NZDCAD": 9093,
-    "USDCHF": 9094,
-    "USDJPY": 9095,
-    "USDCAD": 9096,
-    "NZDCHF": 9097
+    
+    "EURUSD": 9078
 }
 
 class TickHelper:
-    def __init__(self):
+    def __init__(self, isClient = False):
+        self.isClient = isClient
         self.timeout = SOCKET_TIMEOUT
         self.sockets = {}
         self.bid = {}
@@ -49,8 +24,11 @@ class TickHelper:
         self.maxAsk = {}
         for key in CURRENCYPAIR_PORT:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.bind(("127.0.0.1", CURRENCYPAIR_PORT[key]))
-            sock.listen()
+            if self.isClient :
+                sock.connect(("127.0.0.1", CURRENCYPAIR_PORT[key]))
+            else :
+                sock.bind(("127.0.0.1", CURRENCYPAIR_PORT[key]))
+                sock.listen()
             self.sockets[key] = sock
             self.bid[key] = 0
             self.prevBid[key] = 0
@@ -65,11 +43,17 @@ class TickHelper:
         try:
             print("Waiting for connection on port {}".format(CURRENCYPAIR_PORT[currencyPair]))
             self.sockets[currencyPair].settimeout(self.timeout)
-            conn, addr = self.sockets[currencyPair].accept()
-            print("Connection from: " + str(addr))
+            if not self.isClient:
+                conn, addr = self.sockets[currencyPair].accept()
+                print("Connection from: " + str(addr))
             while True:
                 try:
-                    data = conn.recv(200)
+                    if self.isClient: 
+                        self.sockets[currencyPair].send("test".encode('ascii'))
+                        print("client going to recieve data ", self.sockets[currencyPair])
+                        data = self.sockets[currencyPair].recv(1024)
+                    else:
+                        data = conn.recv(200)
                     if not data: 
                         break
                     tickData = data.decode("utf-8")
