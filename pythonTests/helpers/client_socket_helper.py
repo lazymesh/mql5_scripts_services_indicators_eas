@@ -9,33 +9,7 @@ SOCKET_TIMEOUT = 20
 
 CURRENCYPAIR_PORT = {
     "AUDUSD": 9070,
-    "AUDJPY": 9071,
-    "AUDCAD": 9072,
-    "AUDNZD": 9073,
-    "AUDCHF": 9074,
-    "CADJPY": 9075,
-    "CADCHF": 9076,
-    "CHFJPY": 9077,
-    "EURUSD": 9078,
-    "EURJPY": 9079,
-    "EURGBP": 9080,
-    "EURCAD": 9081,
-    "EURAUD": 9082,
-    "EURNZD": 9083,
-    "EURCHF": 9084,
-    "GBPUSD": 9085,
-    "GBPJPY": 9086,
-    "GBPCAD": 9087,
-    "GBPAUD": 9088,
-    "GBPNZD": 9089,
-    "GBPCHF": 9090,
-    "NZDUSD": 9091,
-    "NZDJPY": 9092,
-    "NZDCAD": 9093,
-    "USDCHF": 9094,
-    "USDJPY": 9095,
-    "USDCAD": 9096,
-    "NZDCHF": 9097
+    "EURUSD": 9078
 }
 
 class ClientSocketHelper:

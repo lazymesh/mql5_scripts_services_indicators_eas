@@ -1,93 +1,112 @@
 import socket
 import threading
 
-sockets = {}
-clients = {}
-mt5clients = []
-nicknames = []
+mt5Sockets = {} # for storing ports for recieving mt5 messages
+clientSockets = {} # for storing ports for sending messages
+mt5clients = [] # storing mt5 connections 
+otherClients = {} # storing currency pair wise other clients
 host = '127.0.0.1'
-CURRENCYPAIR_PORT = {
-    "AUDUSD": 9070,
-    "AUDJPY": 9071,
-    "AUDCAD": 9072,
-    "AUDNZD": 9073,
-    "AUDCHF": 9074,
-    "CADJPY": 9075,
-    "CADCHF": 9076,
-    "CHFJPY": 9077,
-    "EURUSD": 9078,
-    "EURJPY": 9079,
-    "EURGBP": 9080,
-    "EURCAD": 9081,
-    "EURAUD": 9082,
-    "EURNZD": 9083,
-    "EURCHF": 9084,
-    "GBPUSD": 9085,
-    "GBPJPY": 9086,
-    "GBPCAD": 9087,
-    "GBPAUD": 9088,
-    "GBPNZD": 9089,
-    "GBPCHF": 9090,
-    "NZDUSD": 9091,
-    "NZDJPY": 9092,
-    "NZDCAD": 9093,
-    "USDCHF": 9094,
-    "USDJPY": 9095,
-    "USDCAD": 9096,
-    "NZDCHF": 9097
+CURRENCY_PAIRS = {
+    "AUDUSD",
+    "AUDJPY",
+    "AUDCAD",
+    "AUDNZD",
+    "AUDCHF",
+    "CADJPY",
+    "CADCHF",
+    "CHFJPY",
+    "EURUSD",
+    "EURJPY",
+    "EURGBP",
+    "EURCAD",
+    "EURAUD",
+    "EURNZD",
+    "EURCHF",
+    "GBPUSD",
+    "GBPJPY",
+    "GBPCAD",
+    "GBPAUD",
+    "GBPNZD",
+    "GBPCHF",
+    "NZDUSD",
+    "NZDJPY",
+    "NZDCAD",
+    "USDCHF",
+    "USDJPY",
+    "USDCAD",
+    "NZDCHF",
 }
 
-for key in CURRENCYPAIR_PORT:
+MT5_SOCKET_PORT_START = 9020
+CLIENT_SOCKET_PORT_START = 9050
+
+for index, key in enumerate(CURRENCY_PAIRS):
+    # these sockets and ports are for mt5 side for recieving info from mt5
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, CURRENCYPAIR_PORT[key]))
+    port = MT5_SOCKET_PORT_START + index
+    print(port)
+    sock.bind((host, port))
     sock.listen()
-    sockets[key] = sock
+    mt5Sockets[key] = sock
+    # these sockets and ports are for other clients for sending info
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    port = CLIENT_SOCKET_PORT_START + index
+    sock.bind((host, port))
+    sock.listen()
+    clientSockets[key] = sock
 
 def broadcast(message, key):
-    if clients and key in clients.keys():
-        
-        for client in clients[key]:
+    if otherClients and key in otherClients.keys():
+        for client in otherClients[key]:
             try:
                 client.send(message)
             except Exception as ex:
                 print(f"A client is being closed for {key} due to {ex}")
-                sendClients = clients[key]
+                sendClients = otherClients[key]
                 sendClients.remove(client)
-                clients[key] = sendClients
+                client.close()
+                otherClients[key] = sendClients
 
-def mt5ReceiveBroadcast(client, key):
+def mt5ReceiveBroadcast(mt5Client, key):
      while True:
         try:
-            message = client.recv(1024)
+            message = mt5Client.recv(1024)
             if not message:
                 break
             broadcast(message, key)
         except Exception as ex:
-            mt5clients.remove(client)
-            client.close()
-            listenForClient(key)
+            mt5clients.remove(mt5Client)
+            mt5Client.close()
+            listenForMt5Clients(key)
 
-def listenForClient(key):
-    client, addresss = sockets[key].accept()
+def listenForMt5Clients(key):
+    client, addresss = mt5Sockets[key].accept()
     messageFromClient = client.recv(20).decode('utf-8')
     if messageFromClient == "mt5":
         print(f"connected mt5 for {key} on {client.getsockname()}")
         mt5clients.append(client)
         mt5ReceiveBroadcast(client, key)
-    else:
+        
+def listenForOtherClients(key):
+    client, addresss = clientSockets[key].accept()
+    messageFromClient = client.recv(20).decode('utf-8')
+    if messageFromClient != "mt5":
         print(f"new client for {key}")
-        sockClients = clients[key] if key in clients.keys() else []
+        sockClients = otherClients[key] if key in otherClients.keys() else []
         sockClients.append(client)
-        clients[key] = sockClients
-        thread = threading.Thread(target=listenForClient, args=(key,))
+        otherClients[key] = sockClients
+        # new thread for new client connections
+        thread = threading.Thread(target=listenForOtherClients, args=(key,))
         thread.start()
 
 def startClients():
-    for key in CURRENCYPAIR_PORT:
-        thread = threading.Thread(target=listenForClient, args=(key,))
+    for key in CURRENCY_PAIRS:
+        # threads for mt5 socket connections
+        thread = threading.Thread(target=listenForMt5Clients, args=(key,))
+        thread.start()
+        # threads for other socket client connections
+        thread = threading.Thread(target=listenForOtherClients, args=(key,))
         thread.start()
 
 print('Server is listening')
-# one for mt5 connection and one for other clients
-startClients()
 startClients()
