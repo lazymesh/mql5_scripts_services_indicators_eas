@@ -16,6 +16,9 @@ int port = 9070;
 void SocketInit() {
    socket=SocketCreate();
    bool connect = SocketConnect(socket, server, port, 1000);
+   if(connect) {
+      Print("socket is connected", " ", server, " port ", port);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -31,29 +34,28 @@ void OnStart() {
       while (next != -1) {
          string chartSymbol = ChartSymbol(next);
          if(!SocketIsConnected(socket)){
-            Print("socket is not initialized yet ", chartSymbol);
+            Print("socket is not initialized yet retrying to connect");
             SocketInit();
          }
          SymbolInfoTick(chartSymbol, latestTick);
          double bid = latestTick.bid;
          double ask = latestTick.ask;
          string tickTime = TimeToString(latestTick.time, TIME_SECONDS);
-         bool stringAdded = StringAdd(payload, StringFormat("\"%s\": {\"time\": \"%s\", \"bid\": %f, \"ask\": %f}", chartSymbol, tickTime, bid, ask));
+         bool stringAdded = StringAdd(payload, StringFormat("{\"pair\": \"%s\", \"time\": \"%s\", \"bid\": %f, \"ask\": %f}", chartSymbol, tickTime, bid, ask));
               
          next = ChartNext(next);
          if (next != -1 && stringAdded) {
-            stringAdded = StringAdd(payload, ",");
+            stringAdded = StringAdd(payload, "#@#");
          }
       }
-      if (SocketIsReadable(socket)) {
-         string completeString = "";
-         int payloadLength = StringConcatenate(completeString, "{", payload, "}");
-         uchar data[];
-         int len = StringToCharArray(completeString, data);
-         // Print(completeString);
-         SocketSend(socket, data, len);
-      }
+      uchar data[];
+      int len = StringToCharArray(payload, data);
+      SocketSend(socket, data, len-1);
       next = ChartFirst();
+      if(!SocketIsConnected(socket)){
+         Print("socket is not initialized yet so stopping the service");
+         break;
+      }
    }
 }
   

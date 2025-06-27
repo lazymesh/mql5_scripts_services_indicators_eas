@@ -1,112 +1,91 @@
 import socket
 import threading
+import json
+import time
 
-mt5Sockets = {} # for storing ports for recieving mt5 messages
-clientSockets = {} # for storing ports for sending messages
-mt5clients = [] # storing mt5 connections 
-otherClients = {} # storing currency pair wise other clients
+connectedClients = {}
 host = '127.0.0.1'
-CURRENCY_PAIRS = {
+CURRENCY_PAIRS = [
     "AUDUSD",
-    "AUDJPY",
-    "AUDCAD",
-    "AUDNZD",
-    "AUDCHF",
-    "CADJPY",
-    "CADCHF",
-    "CHFJPY",
-    "EURUSD",
-    "EURJPY",
-    "EURGBP",
-    "EURCAD",
-    "EURAUD",
-    "EURNZD",
-    "EURCHF",
-    "GBPUSD",
-    "GBPJPY",
-    "GBPCAD",
-    "GBPAUD",
-    "GBPNZD",
-    "GBPCHF",
-    "NZDUSD",
-    "NZDJPY",
-    "NZDCAD",
-    "USDCHF",
-    "USDJPY",
-    "USDCAD",
-    "NZDCHF",
-}
+    "EURUSD"
+]
 
-MT5_SOCKET_PORT_START = 9020
-CLIENT_SOCKET_PORT_START = 9050
+MT5_RECIEVING_PORT = 9070
+CLIENT_SENDING_PORT = 9071
 
-for index, key in enumerate(CURRENCY_PAIRS):
-    # these sockets and ports are for mt5 side for recieving info from mt5
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    port = MT5_SOCKET_PORT_START + index
-    print(port)
-    sock.bind((host, port))
-    sock.listen()
-    mt5Sockets[key] = sock
-    # these sockets and ports are for other clients for sending info
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    port = CLIENT_SOCKET_PORT_START + index
-    sock.bind((host, port))
-    sock.listen()
-    clientSockets[key] = sock
+mt5Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+mt5Socket.bind((host, MT5_RECIEVING_PORT))
+mt5Socket.listen()
+clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+clientSocket.bind((host, CLIENT_SENDING_PORT))
+clientSocket.listen()
 
-def broadcast(message, key):
-    if otherClients and key in otherClients.keys():
-        for client in otherClients[key]:
-            try:
-                client.send(message)
-            except Exception as ex:
-                print(f"A client is being closed for {key} due to {ex}")
-                sendClients = otherClients[key]
-                sendClients.remove(client)
-                client.close()
-                otherClients[key] = sendClients
-
-def mt5ReceiveBroadcast(mt5Client, key):
-     while True:
+def broadcastToClients(pair, message):
+    for client in connectedClients[pair]:
+        print("sending data to clients")
         try:
-            message = mt5Client.recv(1024)
-            if not message:
-                break
-            broadcast(message, key)
+            client.send(str(message).encode("ascii"))
         except Exception as ex:
-            mt5clients.remove(mt5Client)
-            mt5Client.close()
-            listenForMt5Clients(key)
-
-def listenForMt5Clients(key):
-    client, addresss = mt5Sockets[key].accept()
-    messageFromClient = client.recv(20).decode('utf-8')
-    if messageFromClient == "mt5":
-        print(f"connected mt5 for {key} on {client.getsockname()}")
-        mt5clients.append(client)
-        mt5ReceiveBroadcast(client, key)
+            print(f"error while sending {message} to {client} for {pair}")
+            client.close()
+            clients = connectedClients[pair]
+            clients.remove(client)
+            connectedClients[pair] = clients
+            
         
-def listenForOtherClients(key):
-    client, addresss = clientSockets[key].accept()
-    messageFromClient = client.recv(20).decode('utf-8')
-    if messageFromClient != "mt5":
-        print(f"new client for {key}")
-        sockClients = otherClients[key] if key in otherClients.keys() else []
-        sockClients.append(client)
-        otherClients[key] = sockClients
-        # new thread for new client connections
-        thread = threading.Thread(target=listenForOtherClients, args=(key,))
-        thread.start()
+def processMt5Data(mt5Client):
+    data = "mt5 client connected"
+    repeatativeEmpty = 0
+    while(len(data) > 0):
+        try:
+            data = mt5Client.recv(1024000).decode("ascii")
+            if len(data) > 0:
+                for jsn in data.split("#@#"):
+                    if "}{" in jsn:
+                        print(f"data contains {jsn}")
+                        splittedTickData = jsn.split("}{")
+                        jsn = splittedTickData[0] + "}"
+                        print(f"after removing {jsn}")
+                    jsonTickData = json.loads(jsn)
+                    pair = jsonTickData["pair"]
+                    if pair in connectedClients.keys():
+                        broadcastToClients(pair, jsonTickData)
+            repeatativeEmpty = repeatativeEmpty + 1 if len(data) == 0 else 0
+            if repeatativeEmpty > 10:
+                print(f"data is not recieved for 10 times in a row {data}")
+                break
+        except Exception as ex:
+            print(f"error in processing mt5 data {ex}")
+            break
+        time.sleep(0.1)
+    acceptFromMt5()
+    
+def acceptFromClients():
+    try: 
+        while True:
+            print("Server is listening for clients")
+            client, address = clientSocket.accept()
+            pair = client.recv(7).decode("ascii")
+            print(f"{pair} client service is connected at {str(address)}")
+            clients = connectedClients[pair] if connectedClients and pair in connectedClients.keys() else []
+            clients.append(client)
+            connectedClients[pair] = clients
+    except Exception as ex:
+        print(f"error in accepting other clients {ex}")
+        acceptFromClients()
+    
+def acceptFromMt5():
+    try: 
+        print("Server is listening for mt5")
+        mt5Client, address = mt5Socket.accept()
+        print(f"mt5 service is connected at {str(address)}")
+        processMt5Data(mt5Client)
+    except Exception as ex:
+        print(f"error in accepting mt5 client {ex}")
+        acceptFromMt5()
 
-def startClients():
-    for key in CURRENCY_PAIRS:
-        # threads for mt5 socket connections
-        thread = threading.Thread(target=listenForMt5Clients, args=(key,))
-        thread.start()
-        # threads for other socket client connections
-        thread = threading.Thread(target=listenForOtherClients, args=(key,))
-        thread.start()
-
-print('Server is listening')
-startClients()
+if __name__ == "__main__":
+    thread = threading.Thread(target=acceptFromMt5)
+    thread.start()
+    thread = threading.Thread(target=acceptFromClients)
+    thread.start()
