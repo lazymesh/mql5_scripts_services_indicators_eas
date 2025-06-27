@@ -46,8 +46,8 @@ void OnStart() {
          }
       }
       if (SocketIsReadable(socket)) {
-         string completeString = "[";
-         int payloadLength = StringConcatenate(completeString, "[", payload, "]");
+         string completeString = "";
+         int payloadLength = StringConcatenate(completeString, "{", payload, "}");
          uchar data[];
          int len = StringToCharArray(completeString, data);
          // Print(completeString);
