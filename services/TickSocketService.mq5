@@ -27,16 +27,17 @@ void SocketInit() {
 void OnStart() {
    SocketInit();
    MqlTick latestTick;
-   long next = ChartFirst();
+   long next;
    string payload;
    while(true) {
+      if(!SocketIsConnected(socket)){
+         Print("socket is not initialized yet so stopping the service");
+         break;
+      }
+      next = ChartFirst();
       payload = "";
       while (next != -1) {
          string chartSymbol = ChartSymbol(next);
-         if(!SocketIsConnected(socket)){
-            Print("socket is not initialized yet retrying to connect");
-            SocketInit();
-         }
          SymbolInfoTick(chartSymbol, latestTick);
          double bid = latestTick.bid;
          double ask = latestTick.ask;
@@ -51,11 +52,6 @@ void OnStart() {
       uchar data[];
       int len = StringToCharArray(payload, data);
       SocketSend(socket, data, len-1);
-      next = ChartFirst();
-      if(!SocketIsConnected(socket)){
-         Print("socket is not initialized yet so stopping the service");
-         break;
-      }
    }
 }
   
