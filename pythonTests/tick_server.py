@@ -5,10 +5,6 @@ import time
 
 connectedClients = {}
 host = '127.0.0.1'
-CURRENCY_PAIRS = [
-    "AUDUSD",
-    "EURUSD"
-]
 
 MT5_RECIEVING_PORT = 9070
 CLIENT_SENDING_PORT = 9071
@@ -42,10 +38,8 @@ def processMt5Data(mt5Client):
             if len(data) > 0:
                 for jsn in data.split("#@#"):
                     if "}{" in jsn:
-                        print(f"data contains {jsn}")
                         splittedTickData = jsn.split("}{")
                         jsn = splittedTickData[0] + "}"
-                        print(f"after removing {jsn}")
                     jsonTickData = json.loads(jsn)
                     pair = jsonTickData["pair"]
                     if pair in connectedClients.keys():
