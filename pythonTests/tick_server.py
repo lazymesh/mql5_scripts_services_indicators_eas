@@ -18,7 +18,6 @@ clientSocket.listen()
 
 def broadcastToClients(pair, message):
     for client in connectedClients[pair]:
-        print("sending data to clients")
         try:
             client.send(str(message).encode("ascii"))
         except Exception as ex:
