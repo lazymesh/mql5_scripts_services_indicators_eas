@@ -7,3 +7,5 @@
 .env
 *.cpy
 __pycache__
+
+logs_file
