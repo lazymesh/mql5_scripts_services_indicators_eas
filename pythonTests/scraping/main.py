@@ -8,7 +8,10 @@ headers = {
 if __name__ == "__main__":
     #scrape from investing.com
     scrape1 = si.Scrape_Investing(headers)
-    forex_data = scrape1.scrape_investing_forex()
+    # forex_data = scrape1.scrape_investing_forex()
+    # print(forex_data.head())
+    
+    forex_data = scrape1.scrape_forex_with_playwright()
     print(forex_data.head())
 
     # scrape form xe
