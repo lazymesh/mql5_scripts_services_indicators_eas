@@ -1,9 +1,21 @@
 #include <windows.h>
 #include <string>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
+
+std::string FormatTimestamp(time_t timestamp) {
+    struct tm timeinfo;
+    localtime_s(&timeinfo, &timestamp);  // Windows-safe version
+    
+    std::ostringstream oss;
+    oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
+}
 
 // Callback for libcurl to write response data
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
@@ -63,7 +75,7 @@ extern "C" __declspec(dllexport) bool WriteTradeDataToSheet(
         json payload;
         payload["values"] = json::array({
             json::array({
-                TimeToString(time(nullptr)), // Current timestamp
+                FormatTimestamp(time(nullptr)), // Current timestamp
                 symbol,
                 std::to_string(bid),
                 std::to_string(ask),
