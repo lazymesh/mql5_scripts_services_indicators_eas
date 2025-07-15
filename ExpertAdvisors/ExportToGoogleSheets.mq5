@@ -7,7 +7,7 @@ input string GoogleClientID = "your-client-id.apps.googleusercontent.com";
 input string GoogleClientSecret = "your-client-secret";
 input string GoogleRefreshToken = "your-refresh-token";
 input string SpreadsheetID = "your-spreadsheet-id";
-input string SheetRange = "Sheet1!A1";
+input string SheetRange = "Sheet1!A1test";
 
 string AccessToken = "";
 
