@@ -11,9 +11,9 @@ function doPost(e) {
 
     // 3. Get sheet (with error handling)
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = spreadsheet.getSheetByName("Sheet1");
+    const sheet = spreadsheet.getSheetByName(json.symbol);
     if (!sheet) {
-      sheet = spreadsheet.insertSheet("Sheet1");
+      sheet = spreadsheet.insertSheet(json.symbol);
       sheet.appendRow(["Timestamp", "Symbol", "Bid", "Ask", "Volume"]); // Add headers
     }
 
@@ -38,8 +38,8 @@ function doPost(e) {
 
     // Return error details
     return ContentService.createTextOutput(JSON.stringify({
-      status: "errors",
-      message: err.message + " original e " + JSON.stringify(e)
+      status: "error",
+      message: err.message
     })).setMimeType(ContentService.MimeType.JSON);
   }
 }
