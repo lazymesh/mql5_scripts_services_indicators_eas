@@ -26,7 +26,7 @@ def update_sheet():
 
     try:
         service = build('sheets', 'v4', credentials=credentials)
-        result = service.spreadsheets().values().update(
+        result = service.spreadsheets().values().append(
             spreadsheetId=sheet_id,
             range=range_,
             valueInputOption='RAW',
