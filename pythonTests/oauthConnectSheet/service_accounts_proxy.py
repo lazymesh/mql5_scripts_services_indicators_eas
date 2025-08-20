@@ -67,7 +67,6 @@ def check_and_create_sheet(service, spreadsheet_id, sheet_name):
 
     sheet_names = [s["properties"]["title"] for s in sheets]
 
-    # ---- Step 2: Check & Create if needed ----
     if sheet_name not in sheet_names:
         requests = [
             {
