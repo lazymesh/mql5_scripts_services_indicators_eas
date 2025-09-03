@@ -29,7 +29,7 @@ def forward_to_bridge(client, message):
     print(f"Forwarded: {message.text}")
 
 if __name__ == "__main__":
-    list_joined_channels()
+    #list_joined_channels()
     if app.is_connected:
         print("app is already conneced")
     else:
