@@ -6,7 +6,7 @@ import os
 load_dotenv()
 
 bridge_channel = -1002739062404   # your bridge channel ID
-source_channels = [-1002960500255, -1001986228221, -1001800276787, -1002468597860]
+source_channels = [-1001986228221, -1001800276787, -1002468597860]
 
 pairs = [
     "AUDUSD", "AUDJPY", "CADJPY", "CHFJPY",
@@ -93,11 +93,11 @@ def vasilyTrader(text):
 @app.on_message(filters.chat(source_channels))
 async def forward_to_bridge(client, message):
     toBeForwarded = message.text
-    if message.forward_from_chat == -1001986228221:
+    if message.chat.id == -1001986228221:
         toBeForwarded = worldMostProfitableChannel(message.text)
-    if message.forward_from_chat == -1001800276787:
+    if message.chat.id == -1001800276787:
         toBeForwarded = forexSignal(message.text)
-    if message.forward_from_chat == -1002468597860:
+    if message.chat.id == -1002468597860:
         toBeForwarded = vasilyTrader(message.text)
     if "pair" in toBeForwarded and "type" in toBeForwarded and "price" in toBeForwarded and "sl" in toBeForwarded and "tp" in toBeForwarded:
         await client.send_message(

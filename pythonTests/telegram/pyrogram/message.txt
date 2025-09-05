@@ -1,6 +1,25 @@
 testS = "☑️NZDCAD🔥\n\nSELL 0.8099\n\nTP 0.8079 (20PIPS)\nTP 0.8049\nTP 0.7979\n\nSL 0.8159"
 testS = "SIGNAL ALERT\n\nSELL AUDUSD 0.8099\n\n🔥TP1: 0.8079\n🔥TP2: 0.8049\n🔥TP3: 0.7979\n🔥SL: 0.8159"
 
+SIGNAL ALERT
+
+SELL AUDUSD 0.8099
+
+🔥TP1: 0.8079
+🔥TP2: 0.8049
+🔥TP3: 0.7979
+🔥SL: 0.8159
+
+☑️New signal 🔥 
+
+We are selling EURUSD now! Based on our analysis and our we can see that EURUSD will head to the downside. 
+
+We will be SELLING now at 0.65439
+
+Take profit at: 0.65023
+
+Stop loss at: 0.65659
+
 {
     "_": "Message",
     "id": 49,
