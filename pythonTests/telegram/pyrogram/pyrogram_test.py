@@ -12,7 +12,7 @@ pairs = [
     "AUDUSD", "AUDJPY", "CADJPY", "CHFJPY",
     "EURUSD", "EURJPY", "EURGBP", "EURCAD", "EURAUD", "EURNZD", "EURCHF", "GBPUSD", 
     "GBPJPY", "GBPCAD", "GBPAUD", "GBPNZD", "GBPCHF", "NZDCAD", "NZDUSD", "NZDJPY", 
-    "USDCHF", "USDJPY", "USDCAD"
+    "USDCHF", "USDJPY", "USDCAD", "XAUUSD"
 ]
 
 buy_trade_types = ["buying", "buy"]
