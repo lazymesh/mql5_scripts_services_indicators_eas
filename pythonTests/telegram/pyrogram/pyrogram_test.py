@@ -32,18 +32,20 @@ def worldMostProfitableChannel(text):
     lowercaseText = text.lower()
     for pair in pairs:
         if pair in text:
-            result = result + f"pair: {pair} "
+            result = result + f"pair:{pair} "
     if "buy" in lowercaseText:
-        result = result + "type: buy"
+        result = result + "type:buy"
     elif "sell" in lowercaseText:
-        result = result + "type: sell"
+        result = result + "type:sell"
     textArray = lowercaseText.split("\n")
     for signal in textArray:
         if len(signal) > 0:
+            if "buying now at" in signal or "selling now at" in signal:
+                result = result + " price:" + signal.split("now at ")[1]
             if "take profit at:" in signal:
-                result = result + signal.replace("take profit at:", " tp:")
+                result = result + signal.replace("take profit at: ", " tp:")
             if "stop loss at:" in signal:
-                result = result + signal.replace("stop loss at:", " sl:")
+                result = result + signal.replace("stop loss at: ", " sl:")
     return result
                 
                 
@@ -52,14 +54,14 @@ async def forward_to_bridge(client, message):
     toBeForwarded = message.text
     if "new signal" in message.text.lower():
         toBeForwarded = worldMostProfitableChannel(message.text)
-    await client.send_message(
-        chat_id=bridge_channel,
-        text=toBeForwarded
-    )
-    print(f"Forwarded: {toBeForwarded}")
+    if "pair" in toBeForwarded and "type" in toBeForwarded and "price" in toBeForwarded and "sl" in toBeForwarded and "tp" in toBeForwarded:
+        await client.send_message(
+            chat_id=bridge_channel,
+            text=toBeForwarded
+        )
+        print(f"Forwarded: {toBeForwarded}")
 
 if __name__ == "__main__":
-    #list_joined_channels()
     if app.is_connected:
         print("app is already conneced")
     else:
