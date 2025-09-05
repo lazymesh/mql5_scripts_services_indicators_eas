@@ -6,12 +6,12 @@ import os
 load_dotenv()
 
 bridge_channel = -1002739062404   # your bridge channel ID
-source_channels = [-1002960500255,]
+source_channels = [-1002960500255, -1001986228221, -1001800276787, -1002468597860]
 
 pairs = [
     "AUDUSD", "AUDJPY", "CADJPY", "CHFJPY",
     "EURUSD", "EURJPY", "EURGBP", "EURCAD", "EURAUD", "EURNZD", "EURCHF", "GBPUSD", 
-    "GBPJPY", "GBPCAD", "GBPAUD", "GBPNZD", "GBPCHF", "NZDUSD", "NZDJPY", 
+    "GBPJPY", "GBPCAD", "GBPAUD", "GBPNZD", "GBPCHF", "NZDCAD", "NZDUSD", "NZDJPY", 
     "USDCHF", "USDJPY", "USDCAD"
 ]
 
@@ -47,13 +47,58 @@ def worldMostProfitableChannel(text):
             if "stop loss at:" in signal:
                 result = result + signal.replace("stop loss at: ", " sl:")
     return result
+
+def forexSignal(text):
+    result = ""
+    lowercaseText = text.lower()
+    for pair in pairs:
+        if pair in text:
+            result = result + f"pair:{pair} "
+    if "buy" in lowercaseText:
+        result = result + "type:buy"
+    elif "sell" in lowercaseText:
+        result = result + "type:sell"
+    textArray = lowercaseText.split("\n")
+    for signal in textArray:
+        if len(signal) > 0:
+            if "sell" in signal or "buy" in signal:
+                result = result + " price:" + signal.split(" ")[1][:6]
+            if "tp" in signal and "tp" not in result:
+                result = result + " tp:" + signal.split(" ")[1][:6]
+            if "sl" in signal and "sl" not in result:
+                result = result + " sl:" + signal.split(" ")[1][:6]
+    return result
                 
+def vasilyTrader(text):
+    result = ""
+    lowercaseText = text.lower()
+    for pair in pairs:
+        if pair in text:
+            result = result + f"pair:{pair} "
+    if "buy" in lowercaseText:
+        result = result + "type:buy"
+    elif "sell" in lowercaseText:
+        result = result + "type:sell"
+    textArray = lowercaseText.split("\n")
+    for signal in textArray:
+        if len(signal) > 0:
+            if "sell" in signal or "buy" in signal:
+                result = result + " price:" + signal.split(" ")[2][:6]
+            if "tp" in signal and "tp" not in result:
+                result = result + " tp:" + signal.split(" ")[1][:6]
+            if "sl" in signal and "sl" not in result:
+                result = result + " sl:" + signal.split(" ")[1][:6]
+    return result
                 
 @app.on_message(filters.chat(source_channels))
 async def forward_to_bridge(client, message):
     toBeForwarded = message.text
-    if "new signal" in message.text.lower():
+    if message.forward_from_chat == -1001986228221:
         toBeForwarded = worldMostProfitableChannel(message.text)
+    if message.forward_from_chat == -1001800276787:
+        toBeForwarded = forexSignal(message.text)
+    if message.forward_from_chat == -1002468597860:
+        toBeForwarded = vasilyTrader(message.text)
     if "pair" in toBeForwarded and "type" in toBeForwarded and "price" in toBeForwarded and "sl" in toBeForwarded and "tp" in toBeForwarded:
         await client.send_message(
             chat_id=bridge_channel,
