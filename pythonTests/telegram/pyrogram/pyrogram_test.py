@@ -28,66 +28,61 @@ def list_joined_channels():
                 print(f"Channel Name: {dialog.chat.title} (ID: {dialog.chat.id})")
                 
 def worldMostProfitableChannel(text):
-    result = ""
+    result = "{"
     lowercaseText = text.lower()
-    for pair in pairs:
-        if pair in text:
-            result = result + f"pair:{pair} "
-    if "buy" in lowercaseText:
-        result = result + "type:buy"
-    elif "sell" in lowercaseText:
-        result = result + "type:sell"
+    result = commonResult(text, lowercaseText, result)
     textArray = lowercaseText.split("\n")
     for signal in textArray:
         if len(signal) > 0:
             if "buying now at" in signal or "selling now at" in signal:
-                result = result + " price:" + signal.split("now at ")[1]
+                price = signal.split("now at ")[1]
+                result = f"{result} \"price\":{price},"
             if "take profit at:" in signal:
-                result = result + signal.replace("take profit at: ", " tp:")
+                tpReplaced = signal.replace("take profit at: ", " \"tp\":")
+                result = f"{result} {tpReplaced},"
             if "stop loss at:" in signal:
-                result = result + signal.replace("stop loss at: ", " sl:")
-    return result
+                slReplaced = signal.replace("stop loss at: ", " \"sl\":")
+                result = f"{result} {slReplaced},"
+    return result[:len(result) - 1] + "}"
 
 def forexSignal(text):
-    result = ""
+    result = "{"
     lowercaseText = text.lower()
-    for pair in pairs:
-        if pair in text:
-            result = result + f"pair:{pair} "
-    if "buy" in lowercaseText:
-        result = result + "type:buy"
-    elif "sell" in lowercaseText:
-        result = result + "type:sell"
+    result = commonResult(text, lowercaseText, result)
     textArray = lowercaseText.split("\n")
     for signal in textArray:
         if len(signal) > 0:
             if "sell" in signal or "buy" in signal:
-                result = result + " price:" + signal.split(" ")[1][:6]
+                result = result + f" \"price\":{signal.split(" ")[1][:6]},"
             if "tp" in signal and "tp" not in result:
-                result = result + " tp:" + signal.split(" ")[1][:6]
+                result = result + f" \"tp\":{signal.split(" ")[1][:6]},"
             if "sl" in signal and "sl" not in result:
-                result = result + " sl:" + signal.split(" ")[1][:6]
-    return result
+                result = result + f" \"sl\":{signal.split(" ")[1][:6]},"
+    return result[:len(result) - 1] + "}"
                 
 def vasilyTrader(text):
-    result = ""
+    result = "{"
     lowercaseText = text.lower()
-    for pair in pairs:
-        if pair in text:
-            result = result + f"pair:{pair} "
-    if "buy" in lowercaseText:
-        result = result + "type:buy"
-    elif "sell" in lowercaseText:
-        result = result + "type:sell"
+    result = commonResult(text, lowercaseText, result)
     textArray = lowercaseText.split("\n")
     for signal in textArray:
         if len(signal) > 0:
             if "sell" in signal or "buy" in signal:
-                result = result + " price:" + signal.split(" ")[2][:6]
+                result = result + f" \"price\":{signal.split(" ")[2][:6]},"
             if "tp" in signal and "tp" not in result:
-                result = result + " tp:" + signal.split(" ")[1][:6]
+                result = result + f" \"tp\":{signal.split(" ")[1][:6]},"
             if "sl" in signal and "sl" not in result:
-                result = result + " sl:" + signal.split(" ")[1][:6]
+                result = result + f" \"sl\":{signal.split(" ")[1][:6]},"
+    return result[:len(result) - 1] + "}"
+
+def commonResult(text, lowercaseText, result):
+    for pair in pairs:
+        if pair in text:
+            result = result + f"\"pair\":\"{pair}\", "
+    if "buy" in lowercaseText:
+        result = result + "\"type\":\"buy\","
+    elif "sell" in lowercaseText:
+        result = result + "\"type\":\"sell\","
     return result
                 
 @app.on_message(filters.chat(source_channels))
