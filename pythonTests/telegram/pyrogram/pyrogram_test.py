@@ -27,8 +27,11 @@ def list_joined_channels():
             if dialog.chat.type in [ChatType.CHANNEL, ChatType.SUPERGROUP]:
                 print(f"Channel Name: {dialog.chat.title} (ID: {dialog.chat.id})")
                 
+def getSourceStr(source):
+    return f"\"source\":\"{source}\", "
+                
 def worldMostProfitableChannel(text):
-    result = "{"
+    result = "{" + getSourceStr("World_Most_Profitable_Channel")
     lowercaseText = text.lower()
     result = commonResult(text, lowercaseText, result)
     textArray = lowercaseText.split("\n")
@@ -46,7 +49,7 @@ def worldMostProfitableChannel(text):
     return result[:len(result) - 1] + "}"
 
 def forexSignal(text):
-    result = "{"
+    result = "{" + getSourceStr("Forex_Signal")
     lowercaseText = text.lower()
     result = commonResult(text, lowercaseText, result)
     textArray = lowercaseText.split("\n")
@@ -61,7 +64,7 @@ def forexSignal(text):
     return result[:len(result) - 1] + "}"
                 
 def vasilyTrader(text):
-    result = "{"
+    result = "{" + getSourceStr("Vasily_Trader")
     lowercaseText = text.lower()
     result = commonResult(text, lowercaseText, result)
     textArray = lowercaseText.split("\n")
