@@ -5,14 +5,23 @@ import os
 
 load_dotenv()
 
-bridge_channel = -1002739062404   # your bridge channel ID
-source_channels = [-1001986228221, -1001800276787, -1002468597860]
+# your bridge channel ID
+bridge_channel = -1002739062404
+source_channels = [
+    -1001986228221, # World’s Most Profitable Forex Signals 🔥📈
+    -1001800276787, # FREE SIGNALS (Forex channel)
+    -1002468597860, # VASILY TRADER
+    -1002632623445, # FX GOAT TRADING (Signals Free)🐐
+    -1002556657124, # SureShot FX (Gold Signals) ®️ 
+    -1001175463265, # Forex GDP - Free Signals 
+    -1002296311807  # Kara Trading
+]
 
 pairs = [
     "AUDUSD", "AUDJPY", "CADJPY", "CHFJPY",
     "EURUSD", "EURJPY", "EURGBP", "EURCAD", "EURAUD", "EURNZD", "EURCHF", "GBPUSD", 
     "GBPJPY", "GBPCAD", "GBPAUD", "GBPNZD", "GBPCHF", "NZDCAD", "NZDUSD", "NZDJPY", 
-    "USDCHF", "USDJPY", "USDCAD", "XAUUSD"
+    "USDCHF", "USDJPY", "USDCAD", "XAUUSD", "GOLD"
 ]
 
 buy_trade_types = ["buying", "buy"]
@@ -26,77 +35,109 @@ def list_joined_channels():
         for dialog in app.get_dialogs():
             if dialog.chat.type in [ChatType.CHANNEL, ChatType.SUPERGROUP]:
                 print(f"Channel Name: {dialog.chat.title} (ID: {dialog.chat.id})")
+
+                
+def worldMostProfitableChannel(lowercaseText):
+    return prepareResultJson(lowercaseText, "World_Most_Profitable_Channel")
+
+def forexSignal(lowercaseText):
+    return prepareResultJson(lowercaseText, "Forex_Signal")
+                
+def vasilyTrader(lowercaseText):
+    return prepareResultJson(lowercaseText, "Vasily_Trader")
+
+def fxGoatTrading(lowercaseText):
+    return prepareResultJson(lowercaseText, "Forex_Goat_Trading")
+
+def sureShotFx(lowercaseText):
+    return prepareResultJson(lowercaseText, "Sure_Shot_Forex")
+
+def forexGDP(lowercaseText):
+    return prepareResultJson(lowercaseText, "Forex_GDP")
+
+def karaTrading(lowercaseText):
+    if "long-term" in lowercaseText or "long position" in lowercaseText:
+        lowercaseText = lowercaseText.replace("entry:\n", "buy: ")
+    if "short" in lowercaseText and "market price" in lowercaseText:
+        lowercaseText = lowercaseText.replace("entry:\n", "sell: ")
+    lowercaseText = lowercaseText.replace("targets:\n", "tp: ")
+    lowercaseText = lowercaseText.replace("stop loss:\n", "sl: ")
+    lowercaseText = lowercaseText.replace("/", "")
+    return prepareResultJson(lowercaseText, "Kara_Trading")
+    
+
+def prepareResultJson(lowercaseText, clientStr):
+    result = "{" + getSourceStr(clientStr)
+    result = commonResult(lowercaseText, result)
+    return commonExtractor(lowercaseText, result)
                 
 def getSourceStr(source):
-    return f"\"source\":\"{source}\", "
-                
-def worldMostProfitableChannel(text):
-    result = "{" + getSourceStr("World_Most_Profitable_Channel")
-    lowercaseText = text.lower()
-    result = commonResult(text, lowercaseText, result)
+    return f"\"source\":\"{source}\","
+    
+def commonExtractor(lowercaseText, result):
     textArray = lowercaseText.split("\n")
     for signal in textArray:
         if len(signal) > 0:
-            if "buying now at" in signal or "selling now at" in signal:
-                price = signal.split("now at ")[1]
-                result = f"{result} \"price\":{price},"
-            if "take profit at:" in signal:
-                tpReplaced = signal.replace("take profit at: ", " \"tp\":")
-                result = f"{result} {tpReplaced},"
-            if "stop loss at:" in signal:
-                slReplaced = signal.replace("stop loss at: ", " \"sl\":")
-                result = f"{result} {slReplaced},"
+            if ("@" in signal or "sell" in signal or "buy" in signal) and "price" not in result:
+                result = extractAndAdd(result, signal, "price", "")
+            if ("tp" in signal or "take profit" in signal or "target" in signal) and "tp" not in result:
+                result = extractAndAdd(result, signal, "tp", "tp")
+            if ("sl" in signal or "stop loss" in signal) and "sl" not in result:
+                result = extractAndAdd(result, signal, "sl", "sl")
     return result[:len(result) - 1] + "}"
 
-def forexSignal(text):
-    result = "{" + getSourceStr("Forex_Signal")
-    lowercaseText = text.lower()
-    result = commonResult(text, lowercaseText, result)
-    textArray = lowercaseText.split("\n")
-    for signal in textArray:
-        if len(signal) > 0:
-            if "sell" in signal or "buy" in signal:
-                result = result + f" \"price\":{signal.split(" ")[1][:6]},"
-            if "tp" in signal and "tp" not in result:
-                result = result + f" \"tp\":{signal.split(" ")[1][:6]},"
-            if "sl" in signal and "sl" not in result:
-                result = result + f" \"sl\":{signal.split(" ")[1][:6]},"
-    return result[:len(result) - 1] + "}"
-                
-def vasilyTrader(text):
-    result = "{" + getSourceStr("Vasily_Trader")
-    lowercaseText = text.lower()
-    result = commonResult(text, lowercaseText, result)
-    textArray = lowercaseText.split("\n")
-    for signal in textArray:
-        if len(signal) > 0:
-            if "sell" in signal or "buy" in signal:
-                result = result + f" \"price\":{signal.split(" ")[2][:6]},"
-            if "tp" in signal and "tp" not in result:
-                result = result + f" \"tp\":{signal.split(" ")[1][:6]},"
-            if "sl" in signal and "sl" not in result:
-                result = result + f" \"sl\":{signal.split(" ")[1][:6]},"
-    return result[:len(result) - 1] + "}"
+def extractAndAdd(result, signal, key, replaceStr):
+    extractedPrice = valueExtractor(signal, replaceStr)
+    if extractedPrice != "":
+        result = result + f" \"{key}\":{extractedPrice[:6]},"
+    return result
 
-def commonResult(text, lowercaseText, result):
+def valueExtractor(signal, replaceStr):
+    if " " in signal:
+        return loopValues(" ", signal)
+    elif ":" in signal:
+        return loopValues(":", signal)
+    elif "-" in signal:
+        return loopValues("-", signal)
+    else:
+        return signal.replace(replaceStr, "").strip()
+    
+def loopValues(splitter, signal):
+    splittedSignal = signal.split(splitter)
+    for value in reversed(splittedSignal):
+        checkValue = value.strip()
+        if checkValue.replace('.', '', 1).isdigit():
+            return checkValue
+    return ""
+
+    
+def commonResult(lowercaseText, result):
     for pair in pairs:
-        if pair in text:
-            result = result + f"\"pair\":\"{pair}\", "
+        if pair.lower() in lowercaseText:
+            result = result + f" \"pair\":\"{"XAUUSD" if pair == "GOLD" else pair}\","
     if "buy" in lowercaseText:
-        result = result + "\"type\":\"buy\","
+        result = result + " \"type\":\"buy\","
     elif "sell" in lowercaseText:
-        result = result + "\"type\":\"sell\","
+        result = result + " \"type\":\"sell\","
     return result
                 
 @app.on_message(filters.chat(source_channels))
 async def forward_to_bridge(client, message):
-    toBeForwarded = message.text
+    toBeForwarded = message.text.lower()
     if message.chat.id == -1001986228221:
-        toBeForwarded = worldMostProfitableChannel(message.text)
+        toBeForwarded = worldMostProfitableChannel(toBeForwarded)
     if message.chat.id == -1001800276787:
-        toBeForwarded = forexSignal(message.text)
+        toBeForwarded = forexSignal(toBeForwarded)
     if message.chat.id == -1002468597860:
-        toBeForwarded = vasilyTrader(message.text)
+        toBeForwarded = vasilyTrader(toBeForwarded)
+    if message.chat.id == -1002632623445:
+        toBeForwarded = fxGoatTrading(toBeForwarded)
+    if message.chat.id == -1002556657124:
+        toBeForwarded = sureShotFx(toBeForwarded)
+    if message.chat.id == -1001175463265:
+        toBeForwarded = forexGDP(toBeForwarded)
+    if message.chat.id == -1002296311807:
+        toBeForwarded = karaTrading(toBeForwarded)
     if "pair" in toBeForwarded and "type" in toBeForwarded and "price" in toBeForwarded and "sl" in toBeForwarded and "tp" in toBeForwarded:
         await client.send_message(
             chat_id=bridge_channel,
