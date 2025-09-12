@@ -106,6 +106,7 @@ def loopValues(splitter, signal):
     splittedSignal = signal.split(splitter)
     for value in reversed(splittedSignal):
         checkValue = value.strip()
+        checkValue = valueExtractor(checkValue, "-") if "-" in checkValue else checkValue
         if checkValue.replace('.', '', 1).isdigit():
             return checkValue
     return ""
@@ -123,27 +124,28 @@ def commonResult(lowercaseText, result):
                 
 @app.on_message(filters.chat(source_channels))
 async def forward_to_bridge(client, message):
-    toBeForwarded = message.text.lower()
-    if message.chat.id == -1001986228221:
-        toBeForwarded = worldMostProfitableChannel(toBeForwarded)
-    if message.chat.id == -1001800276787:
-        toBeForwarded = forexSignal(toBeForwarded)
-    if message.chat.id == -1002468597860:
-        toBeForwarded = vasilyTrader(toBeForwarded)
-    if message.chat.id == -1002632623445:
-        toBeForwarded = fxGoatTrading(toBeForwarded)
-    if message.chat.id == -1002556657124:
-        toBeForwarded = sureShotFx(toBeForwarded)
-    if message.chat.id == -1001175463265:
-        toBeForwarded = forexGDP(toBeForwarded)
-    if message.chat.id == -1002296311807:
-        toBeForwarded = karaTrading(toBeForwarded)
-    if "pair" in toBeForwarded and "type" in toBeForwarded and "price" in toBeForwarded and "sl" in toBeForwarded and "tp" in toBeForwarded:
-        await client.send_message(
-            chat_id=bridge_channel,
-            text=toBeForwarded
-        )
-        print(f"Forwarded: {toBeForwarded}")
+    if message is not None and message.text is not None:
+        toBeForwarded = message.text.lower()
+        if message.chat.id == -1001986228221:
+            toBeForwarded = worldMostProfitableChannel(toBeForwarded)
+        if message.chat.id == -1001800276787:
+            toBeForwarded = forexSignal(toBeForwarded)
+        if message.chat.id == -1002468597860:
+            toBeForwarded = vasilyTrader(toBeForwarded)
+        if message.chat.id == -1002632623445:
+            toBeForwarded = fxGoatTrading(toBeForwarded)
+        if message.chat.id == -1002556657124:
+            toBeForwarded = sureShotFx(toBeForwarded)
+        if message.chat.id == -1001175463265:
+            toBeForwarded = forexGDP(toBeForwarded)
+        if message.chat.id == -1002296311807:
+            toBeForwarded = karaTrading(toBeForwarded)
+        if "pair" in toBeForwarded and "type" in toBeForwarded and "price" in toBeForwarded and "sl" in toBeForwarded and "tp" in toBeForwarded:
+            await client.send_message(
+                chat_id=bridge_channel,
+                text=toBeForwarded
+            )
+            print(f"Forwarded: {toBeForwarded}")
 
 if __name__ == "__main__":
     if app.is_connected:
