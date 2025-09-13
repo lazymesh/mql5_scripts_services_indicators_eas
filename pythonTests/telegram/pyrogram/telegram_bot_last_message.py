@@ -1,8 +1,13 @@
 import requests
 
-url = "https://api.telegram.org/bot8252325868:AAHirzVsByusZQ3F3fUKGg26UCbXT5kFLL8/getUpdates?offset=-1"
+url = "https://api.telegram.org/bot8252325868:AAHirzVsByusZQ3F3fUKGg26UCbXT5kFLL8/getUpdates"
 
 try:
-    response = requests.get(url)
+    response = requests.get(url).json()
+    result = response['result']
+    if len(result) > 0:
+        last_update_id = result[len(result) - 1]['update_id']
+        offset_url = f"{url}?offset={last_update_id + 1}"
+        requests.get(offset_url)
 except requests.exceptions.RequestException as e:
     print(f"Error accessing the website: {e}")
