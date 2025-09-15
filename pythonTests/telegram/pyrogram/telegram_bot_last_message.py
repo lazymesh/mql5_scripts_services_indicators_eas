@@ -1,6 +1,10 @@
 import requests
+import os
+from dotenv import load_dotenv 
 
-url = "getupdates url"
+load_dotenv()
+
+url = os.getenv("TELEGRAM_GET_UPDATES_URL")
 
 try:
     response = requests.get(url).json()
