@@ -58,7 +58,7 @@ def forexGDP(lowercaseText):
 def karaTrading(lowercaseText):
     if "long-term" in lowercaseText or "long position" in lowercaseText:
         lowercaseText = lowercaseText.replace("entry:\n", "buy: ")
-    if "short" in lowercaseText and "market price" in lowercaseText:
+    if "short" in lowercaseText or "sell" in lowercaseText:
         lowercaseText = lowercaseText.replace("entry:\n", "sell: ")
     lowercaseText = lowercaseText.replace("targets:\n", "tp: ")
     lowercaseText = lowercaseText.replace("stop loss:\n", "sl: ")
