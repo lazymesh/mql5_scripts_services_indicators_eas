@@ -18,7 +18,7 @@ source_channels = [
 ]
 
 pairs = [
-    "AUDUSD", "AUDJPY", "CADJPY", "CHFJPY",
+    "AUDUSD", "AUDJPY", "CADJPY", "CHFJPY", "XAGUSD",
     "EURUSD", "EURJPY", "EURGBP", "EURCAD", "EURAUD", "EURNZD", "EURCHF", "GBPUSD", 
     "GBPJPY", "GBPCAD", "GBPAUD", "GBPNZD", "GBPCHF", "NZDCAD", "NZDUSD", "NZDJPY", 
     "USDCHF", "USDJPY", "USDCAD", "XAUUSD", "GOLD"
@@ -57,28 +57,35 @@ def forexGDP(lowercaseText):
 
 def karaTrading(lowercaseText):
     if "long-term" in lowercaseText or "long position" in lowercaseText:
-        lowercaseText = lowercaseText.replace("entry:\n", "buy: ")
+        lowercaseText = lowercaseText.replace("entry\n", "buy ")
     if "short" in lowercaseText or "sell" in lowercaseText:
-        lowercaseText = lowercaseText.replace("entry:\n", "sell: ")
-    lowercaseText = lowercaseText.replace("targets:\n", "tp: ")
-    lowercaseText = lowercaseText.replace("stop loss:\n", "sl: ")
+        lowercaseText = lowercaseText.replace("entry\n", "sell ")
+    lowercaseText = lowercaseText.replace("targets\n", "tp ")
+    lowercaseText = lowercaseText.replace("stop loss\n", "sl ")
     lowercaseText = lowercaseText.replace("/", "")
     return prepareResultJson(lowercaseText, "Kara_Trading")
-    
 
 def prepareResultJson(lowercaseText, clientStr):
     result = "{" + getSourceStr(clientStr)
+    lowercaseText = replaceSpecialCharacters(lowercaseText)
     result = commonResult(lowercaseText, result)
     return commonExtractor(lowercaseText, result)
                 
 def getSourceStr(source):
     return f"\"source\":\"{source}\","
+
+def replaceSpecialCharacters(lowercaseText):
+    lowercaseText = lowercaseText.replace("\n@", " ")
+    lowercaseText = lowercaseText.replace("@", " ")
+    lowercaseText = lowercaseText.replace("-", " ")
+    lowercaseText = lowercaseText.replace(":", " ")
+    return lowercaseText
     
 def commonExtractor(lowercaseText, result):
     textArray = lowercaseText.split("\n")
     for signal in textArray:
         if len(signal) > 0:
-            if ("@" in signal or "sell" in signal or "buy" in signal) and "price" not in result:
+            if ("sell" in signal or "buy" in signal) and "price" not in result:
                 result = extractAndAdd(result, signal, "price", "")
             if ("tp" in signal or "take profit" in signal or "target" in signal) and "tp" not in result:
                 result = extractAndAdd(result, signal, "tp", "tp")
@@ -140,7 +147,7 @@ async def forward_to_bridge(client, message):
                 toBeForwarded = fxGoatTrading(toBeForwarded)
             if message.chat.id == -1002556657124:
                 toBeForwarded = sureShotFx(toBeForwarded)
-            if message.chat.id == -1002960500255:
+            if message.chat.id == -1001175463265:
                 toBeForwarded = forexGDP(toBeForwarded)
             if message.chat.id == -1002296311807:
                 toBeForwarded = karaTrading(toBeForwarded)
