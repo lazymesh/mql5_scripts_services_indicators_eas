@@ -14,14 +14,17 @@
 #property indicator_chart_window
 
 //--- Inputs
+input group "FVG";
 input bool ShowFVG = true;
 input color BullFVGColor = clrBlue;
 input color BearFVGColor = clrRed;
 
+input group "OG";
 input bool ShowOG = false;
 input color BullOGColor = clrBlue;
 input color BearOGColor = clrRed;
 
+input group "VI";
 input bool ShowVI = false;
 input color BullVIColor = clrBlue;
 input color BearVIColor = clrRed;
@@ -33,10 +36,18 @@ int fvgCount = 0;
 int ogCount = 0;
 int viCount = 0;
 
+double x_brain_handle;
+
 //+------------------------------------------------------------------+
 int OnInit()
 {
    ObjectsDeleteAll(0,"IMB_"); // clean old boxes
+   x_brain_handle = iCustom(NULL, 0, "X-Brain Method", "X-Brain_Settings", 0, 0, 1, 1, 1, "", 
+      "X-Brain_Alerts", 3, 1, 0, 1, 1, 0, 
+      "Session Settings", 3, 22, 23, 7, 12,
+      "channel detection", 0, 2, 3, 0, 12.0, 0, 50, 1, 1, 1, 1,
+      "alerts & email", 0, 1, 5, 5, "alert.wav", "alert2.wav", 0, 1, 0,
+      0, 0); 
    return(INIT_SUCCEEDED);
 }
 //+------------------------------------------------------------------+
@@ -160,6 +171,7 @@ void DrawBox(
    }
 }
 
+
 void OnDeinit(const int reason)
 {
    // Delete only objects created by this indicator
@@ -167,7 +179,7 @@ void OnDeinit(const int reason)
    for(int i = total-1; i >= 0; i--)
    {
       string name = ObjectName(i);
-      if(StringFind(name, "IMB_") == 0) // starts with "Imbalance_"
+      if(StringFind(name, "IMB_") == 0) // starts with "IMB_"
       {
          ObjectDelete(name);
       }
