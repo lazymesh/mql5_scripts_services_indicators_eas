@@ -159,3 +159,17 @@ void DrawBox(
       ObjectSetInteger(0, name, OBJPROP_WIDTH, 1);
    }
 }
+
+void OnDeinit(const int reason)
+{
+   // Delete only objects created by this indicator
+   int total = ObjectsTotal();
+   for(int i = total-1; i >= 0; i--)
+   {
+      string name = ObjectName(i);
+      if(StringFind(name, "IMB_") == 0) // starts with "Imbalance_"
+      {
+         ObjectDelete(name);
+      }
+   }
+}
