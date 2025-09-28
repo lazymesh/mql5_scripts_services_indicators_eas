@@ -12,6 +12,9 @@
 //+------------------------------------------------------------------+
 #property strict
 #property indicator_chart_window
+#property indicator_buffers 2
+#property indicator_color1 clrBlue
+#property indicator_color2 clrRed
 
 //--- Inputs
 input group "FVG";
@@ -36,18 +39,27 @@ int fvgCount = 0;
 int ogCount = 0;
 int viCount = 0;
 
+double BuySignals[];
+double SellSignals[];
+
 double x_brain_handle;
 
 //+------------------------------------------------------------------+
 int OnInit()
 {
+    SetIndexBuffer(0, BuySignals);
+    SetIndexBuffer(1, SellSignals);
+    SetIndexStyle(0, DRAW_ARROW, EMPTY, 3, clrBlue);
+    SetIndexStyle(1, DRAW_ARROW, EMPTY, 3, clrRed);
+    SetIndexArrow(0, 233); // Buy arrow
+    SetIndexArrow(1, 234); // Sell arrow
    ObjectsDeleteAll(0,"IMB_"); // clean old boxes
-   x_brain_handle = iCustom(NULL, 0, "X-Brain Method", "X-Brain_Settings", 0, 0, 1, 1, 1, "", 
-      "X-Brain_Alerts", 3, 1, 0, 1, 1, 0, 
-      "Session Settings", 3, 22, 23, 7, 12,
-      "channel detection", 0, 2, 3, 0, 12.0, 0, 50, 1, 1, 1, 1,
-      "alerts & email", 0, 1, 5, 5, "alert.wav", "alert2.wav", 0, 1, 0,
-      0, 0); 
+//    x_brain_handle = iCustom(NULL, 0, "X-Brain Method", "X-Brain_Settings", 0, 0, 1, 1, 1, "", 
+//       "X-Brain_Alerts", 3, 1, 0, 1, 1, 0, 
+//       "Session Settings", 3, 22, 23, 7, 12,
+//       "channel detection", 0, 2, 3, 0, 12.0, 0, 50, 1, 1, 1, 1,
+//       "alerts & email", 0, 1, 5, 5, "alert.wav", "alert2.wav", 0, 1, 0,
+//       0, 0); 
    return(INIT_SUCCEEDED);
 }
 //+------------------------------------------------------------------+
@@ -71,6 +83,12 @@ int OnCalculate(const int rates_total,
 
    for(int i=2; i<start; i++)
    {
+
+    // Directly read from external indicator buffers
+        double buy_signal = iCustom(NULL, 0, "X-Brain Method", "X-Brain_Settings", 0, 0, i);  // buffer 0
+        
+        double sell_signal = iCustom(NULL, 0, "X-Brain Method", "X-Brain_Settings", 0, 1, i); // buffer 1
+        
       //=================== FVG ===================//
       if(ShowFVG)
       {
