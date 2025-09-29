@@ -9,6 +9,8 @@ class Item(BaseModel):
     name: str
     price: float
     in_stock: bool = True
+    
+data = ["empty string",]
 
 @app.get("/")
 def home():
@@ -17,19 +19,16 @@ def home():
 # Async GET endpoint
 @app.get("/items/{item_id}")
 async def get_item(item_id: int, q: str | None = None):
-    return {
-        "item_id": item_id,
-        "query": q,
-        "message": "Item retrieved successfully"
-    }
+    return data[len(data) - 1]
 
 
 # Async POST endpoint
-@app.post("/webhook/")
-async def webhook(item: Item = Body(...)):
+@app.post("/webhook/test")
+async def webhook(item = Body(...)):
+    data.append(item)
     return {
         "message": "Item created successfully",
-        "item": item.dict()
+        "total": len(data)
     }
 
 
