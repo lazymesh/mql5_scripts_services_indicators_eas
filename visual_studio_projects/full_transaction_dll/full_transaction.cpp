@@ -2,13 +2,35 @@
 #include <windows.h>
 #include <winhttp.h>
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <locale>
+#include <codecvt>
 
 #pragma comment(lib, "winhttp.lib")
+
+void logToFile(const std::string& message) {
+    std::ofstream file("C:\\Users\\rawnm\\Documents\\simple.log", std::ios::app);
+    if (file.is_open()) {
+        file << " - " << message << std::endl;
+        file.close();
+    }
+}
+
+std::wstring string_to_wstring(const std::string& str) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.from_bytes(str);
+}
+
+std::string wstring_to_string(const std::wstring& wstr) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.to_bytes(wstr);
+}
 
 // Helper: perform request
 std::string http_request(const std::wstring& method,
     const std::wstring& path,
-    const std::string& body = "") {
+    const std::wstring& body = L"") {
     std::string result;
     HINTERNET hSession = WinHttpOpen(L"FastAPI Client/1.0",
         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
@@ -37,7 +59,7 @@ std::string http_request(const std::wstring& method,
     BOOL bResults = WinHttpSendRequest(hRequest,
         L"Content-Type: application/json\r\n",
         -1L,
-        (LPVOID)body.c_str(),
+        (LPVOID)wstring_to_string(body).c_str(),
         (DWORD)body.size(),
         (DWORD)body.size(),
         0);
@@ -78,32 +100,30 @@ std::string get_item(int item_id) {
     return http_request(L"GET", path);
 }
 
-std::string create_item(const std::string& transactionDetail) {
+std::string create_item(wchar_t* transactionDetail) {
     std::wstring path = L"/webhook/test";
-    std::string body = transactionDetail;
+    std::wstring body = transactionDetail;
     return http_request(L"POST", path, body);
 }
 
 // Exported functions (for external use, e.g., MQL5)
 extern "C" {
 
-    __declspec(dllexport) bool __stdcall GetStringData(char* outputBuffer, int bufferSize, int item_id)
+    __declspec(dllexport) bool __stdcall get_latest_dll(wchar_t* outputBuffer, int bufferSize, int item_id)
     {
         try
         {
-            static std::string result;
-            result = get_item(item_id);
-            std::string rtnResult = "result.c_str()"; // Your actual data
+            static std::wstring result;
+            result = string_to_wstring(get_item(item_id));
 
             // Ensure we don't overflow the buffer
-            if (rtnResult.length() + 1 > (size_t)bufferSize)
+            if (result.length() + 1 > (size_t)bufferSize)
             {
                 return false; // Buffer too small
             }
 
             // Copy string to buffer (MQL expects ANSI null-terminated string)
-            strcpy_s(outputBuffer, bufferSize, rtnResult.c_str());
-            printf("Buffer content: %s\n", outputBuffer);
+            wcsncpy_s(outputBuffer, bufferSize, result.c_str(), _TRUNCATE);
             return true;
         }
         catch (...)
@@ -112,18 +132,13 @@ extern "C" {
         }
     }
 
-    __declspec(dllexport) const char* get_item_dll(int item_id) {
-        static std::string result;
-        result = get_item(item_id);
-        //return result.c_str();
-        result = "testing";
-        return result.c_str();
-    }
-
-    __declspec(dllexport) const char* create_item_dll(const char* transactionDetail) {
+    __declspec(dllexport) bool __stdcall create_item_dll(wchar_t* transactionDetail) {
         static std::string result;
         result = create_item(transactionDetail);
-        return result.c_str();
+        if (result.find("success") != std::string::npos) {
+            return true;
+        }
+        return false;
     }
 
 }
