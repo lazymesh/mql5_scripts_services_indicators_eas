@@ -95,26 +95,26 @@ std::string http_request(const std::wstring& method,
 }
 
 // Wrappers
-std::string get_item(int item_id) {
-    std::wstring path = L"/items/" + std::to_wstring(item_id) + L"?q=test";
+std::string get_last_item(std::wstring collection) {
+    std::wstring path = L"/last_item/" + collection;
     return http_request(L"GET", path);
 }
 
-std::string create_item(wchar_t* transactionDetail) {
-    std::wstring path = L"/webhook/test";
-    std::wstring body = transactionDetail;
+std::string create_item(wchar_t* data, wchar_t* apiPath) {
+    std::wstring path = apiPath;
+    std::wstring body = data;
     return http_request(L"POST", path, body);
 }
 
 // Exported functions (for external use, e.g., MQL5)
 extern "C" {
 
-    __declspec(dllexport) bool __stdcall get_latest_dll(wchar_t* outputBuffer, int bufferSize, int item_id)
+    __declspec(dllexport) bool __stdcall get_latest_item(wchar_t* outputBuffer, int bufferSize, wchar_t* collection)
     {
         try
         {
             static std::wstring result;
-            result = string_to_wstring(get_item(item_id));
+            result = string_to_wstring(get_last_item(collection));
 
             // Ensure we don't overflow the buffer
             if (result.length() + 1 > (size_t)bufferSize)
@@ -132,9 +132,10 @@ extern "C" {
         }
     }
 
-    __declspec(dllexport) bool __stdcall create_item_dll(wchar_t* transactionDetail) {
+    __declspec(dllexport) bool __stdcall save(wchar_t* data, wchar_t* apiPath) {
         static std::string result;
-        result = create_item(transactionDetail);
+        result = create_item(data, apiPath);
+        logToFile(result);
         if (result.find("success") != std::string::npos) {
             return true;
         }

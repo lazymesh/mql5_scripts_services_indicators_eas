@@ -8,73 +8,111 @@
 #property version   "1.00"
 
 #import "full_transaction.dll"
-   bool get_latest_dll(string &buffer, int bufferLength, int itemId);
-   bool create_item_dll(string item);
+   bool get_latest_item(string &buffer, int bufferLength, string collection);
+   bool save(string data, string apiPath);
 #import
+
+//getting last saved history deal and extracting deal date
+string GetHistoryDealLastSavedDealDate() {
+   string last_history_deal;
+   StringInit(last_history_deal, 1024, 0);
+   if(get_latest_item(last_history_deal, 1024, "HistoryDeals")) {
+      string result[];
+      int count = StringSplit(last_history_deal, StringGetCharacter(",", 0), result);
+      if (count > 0) {
+         for (int i = 0; i < count; i++) {
+            if(StringFind(result[i], "deal_time") != -1) {
+               string deal_date_info[];
+               StringSplit(result[i], StringGetCharacter("\"", 0), deal_date_info);
+               return deal_date_info[3];
+            }
+         }
+      }
+   }
+   // if data is not saved then return following date for whole history deal
+   return "1970.01.01 09:00";
+}
+
+// getting last saved history order and extracting executed date 
+string GetHistoryOrdersLastSavedExecutedDate() {
+   string last_history_order;
+   StringInit(last_history_order, 1024, 0);
+   if(get_latest_item(last_history_order, 1024, "HistoryOrders")) {
+      string result[];
+      int count = StringSplit(last_history_order, StringGetCharacter(",", 0), result);
+      if (count > 0) {
+         for (int i = 0; i < count; i++) {
+            if(StringFind(result[i], "executed_time") != -1) {
+               string executed_date_info[];
+               StringSplit(result[i], StringGetCharacter("\"", 0), executed_date_info);
+               return executed_date_info[3];
+            }
+         }
+      }
+   }
+   // if data is not saved then return following date for whole history order
+   return "1970.01.01 09:00";
+}
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
-int OnInit()
-  {
-  string history_deals_json = GetHistoryDeals(StringToTime("1970.01.01 09:00"));
-  if(StringLen(history_deals_json) > 5) {
-     bool history_deals_json_sent = create_item_dll(history_deals_json);
-     if(history_deals_json_sent) {
-      Print("history deals sent");
-     } else {
-      Print("failed to send history deals");
-     }
-  }
-  
-//  string history_orders_json = GetHistoryOrders(StringToTime("1970.01.01 09:00"));
-//  if(StringLen(history_orders_json) > 5) {
-//     bool history_orders_json_sent = create_item_dll(history_orders_json);
-//     if(history_orders_json_sent) {
-//      Print("history orders sent");
-//     } else {
-//      Print("failed to send history orders");
-//     }
-//  }
-//  
-  //string positions_json = GetOpenPositions();
-  //if(StringLen(positions_json) > 5) {
-  //   bool position_json_sent = create_item_dll(positions_json);
-  //   if(position_json_sent) {
-  //    Print("position json sent");
-  //   } else {
-  //    Print("failed to send position json");
-  //   }
-  //}
-  
-  //string account_json = GetAccountInfo();
-  //bool account_json_sent = create_item_dll(account_json);
-  //if(account_json_sent) {
-  // Print("account json sent");
-  //} else {
-  // Print("failed to send account json");
-  //}
-  
+int OnInit() {
+   //setting timer to update every 15 minutes
+   EventSetTimer(15 * 60);
+   //saving data for the first time
+   saveData();
    return(INIT_SUCCEEDED);
-  }
+}
 //+------------------------------------------------------------------+
 //| Expert deinitialization function                                 |
 //+------------------------------------------------------------------+
-void OnDeinit(const int reason)
-  {
-//---
-   
-  }
+void OnDeinit(const int reason) {}
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
-void OnTick()
-  {
-//---
+void OnTick(){}
+
+void OnTimer() {
+   saveData();
+}
+
+//passing the data to the api for saving
+void saveData() {
+   string latest_saved_deal_date = GetHistoryDealLastSavedDealDate();
+   string history_deals_json = GetHistoryDeals(StringToTime(latest_saved_deal_date)+70); // 70 is added to change minute value
+   if(StringLen(history_deals_json) > 5) {
+     bool history_deals_json_sent = save(history_deals_json, "/history_deals");
+     if(!history_deals_json_sent) {
+         Print("failed to send history deals");
+     }
+   }
+
+   string latest_saved_executed_date = GetHistoryOrdersLastSavedExecutedDate();
+   string history_orders_json = GetHistoryOrders(StringToTime(latest_saved_executed_date)+70);// 70 is added to change minute value
+   if(StringLen(history_orders_json) > 5) {
+     bool history_orders_json_sent = save(history_orders_json, "/history_orders");
+     if(!history_orders_json_sent) {
+         Print("failed to send history orders");
+     }
+   }
    
+   string positions_json = GetOpenPositions();
+   if(StringLen(positions_json) > 5) {
+     bool position_json_sent = save(positions_json, "/positions");
+     if(!position_json_sent) {
+      Print("failed to send position json");
+     }
+   } else { // means there is no data so delete from database
+      save("[]", "/positions");
+   }
    
-  }
-//+------------------------------------------------------------------+
+   string account_json = GetAccountInfo();
+   bool account_json_sent = save(account_json, "/account");
+   if(!account_json_sent) {
+      Print("failed to send account json");
+   }
+}
 
 string GetHistoryDeals(datetime start) {
    HistorySelect(start, TimeCurrent());
@@ -82,13 +120,14 @@ string GetHistoryDeals(datetime start) {
    string deals = "[";
    for(int i = 0; i < totalDeals; i++) {
       ulong ticket = HistoryDealGetTicket(i);
+      string deal_time = TimeToString(HistoryDealGetInteger(ticket, DEAL_TIME));
       string dealInfo = StringFormat(
          "{\"ticket\":%d,\"symbol\":\"%s\",\"deal_time\":\"%s\",\"deal_price\":%f," +
          "\"sl\":%f,\"tp\":%f,\"profit\":%f,\"type\":\"%s\",\"volume\":%d,\"comment\":\"%s\",\"commission\":%f," +
          "\"fee\":%f,\"order_id\":%d,\"position_id\":%d,\"magic\":%d},",
          ticket,
          HistoryDealGetString(ticket, DEAL_SYMBOL),
-         TimeToString(HistoryDealGetInteger(ticket, DEAL_TIME)),
+         deal_time,
          HistoryDealGetDouble(ticket, DEAL_PRICE),
          HistoryDealGetDouble(ticket, DEAL_SL),
          HistoryDealGetDouble(ticket, DEAL_TP),
@@ -103,6 +142,7 @@ string GetHistoryDeals(datetime start) {
          HistoryDealGetInteger(ticket, DEAL_MAGIC)
       );
       StringAdd(deals, dealInfo);
+      //GlobalVariableSet(LATEST_HISTORY_DEAL_DATE, (double)deal_time);
    }
    deals = StringSubstr(deals, 0, StringLen(deals) - 1);
    StringAdd(deals, "]");
@@ -115,6 +155,7 @@ string GetHistoryOrders(datetime start) {
    string orders = "[";
    for(int i = 0; i < totalOrders; i++) {
       ulong ticket = HistoryOrderGetTicket(i);
+      string executed_time = TimeToString(HistoryOrderGetInteger(ticket,ORDER_TIME_DONE));
       string orderInfo = StringFormat(
          "{\"ticket\":%d,\"symbol\":\"%s\",\"setup_time\":\"%s\",\"executed_time\":\"%s\"," +
          "\"price_opened\":%f,\"type\":\"%s\",\"volume_initial\":%f,\"comment\":\"%s\",\"sl\":%f," +
@@ -122,7 +163,7 @@ string GetHistoryOrders(datetime start) {
          ticket,
          HistoryOrderGetString(ticket, ORDER_SYMBOL),
          TimeToString(HistoryOrderGetInteger(ticket,ORDER_TIME_SETUP)),
-         TimeToString(HistoryOrderGetInteger(ticket,ORDER_TIME_DONE)),
+         executed_time,
          HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN),
          HistoryOrderGetInteger(ticket, ORDER_TYPE) == ORDER_TYPE_BUY ? "BUY" : "SELL",
          HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL),
@@ -136,6 +177,7 @@ string GetHistoryOrders(datetime start) {
          HistoryOrderGetInteger(ticket, ORDER_MAGIC)
       );
       StringAdd(orders, orderInfo);
+      //GlobalVariableSet(LATEST_HISTORY_ORDER_EXECUTED_DATE, (double)executed_time);
    }
    orders = StringSubstr(orders, 0, StringLen(orders) - 1);
    StringAdd(orders, "]");
@@ -177,13 +219,13 @@ string GetOpenPositions() {
 
 string GetAccountInfo() {
    string accountInfo = StringFormat(
-      "{\"Name\":\"%s\",\"Server\":\"%s\",\"Currency\":\"%s\",\"Company\":\"%s\"," +
+      "[{\"Name\":\"%s\",\"Server\":\"%s\",\"Currency\":\"%s\",\"Company\":\"%s\"," +
       "\"Assets\":%f,\"Balance\":%f,\"Commission_blocked\":%f,\"Credit\":%f,\"Equity\":%f," +
       "\"Liabilities\":%f,\"Margin\":%f,\"Margin_free\":%f,\"Margin_initial\":%f,\"Margin_level\":%f," +
       "\"Margin_maintenance\":%f,\"Margin_so_call\":%f,\"Margin_so_so\":%f,\"" +
       "Profit\":%f,\"currency_digit\":%d,\"fifo_close\":%d,\"Hedge_allowed\":%d,\"Leverage\":%d," +
       "\"Limit_orders\":%d,\"Login\":%d,\"Margin_mode\":%d," + 
-      "\"Trade_allowed\":%d,\"Trade_expert\":%d,\"Trade_mode\":%d}",      
+      "\"Trade_allowed\":%d,\"Trade_expert\":%d,\"Trade_mode\":%d}]",      
       AccountInfoString(ACCOUNT_NAME),
       AccountInfoString(ACCOUNT_SERVER),
       AccountInfoString(ACCOUNT_CURRENCY),
