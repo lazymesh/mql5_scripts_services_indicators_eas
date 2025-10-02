@@ -9,8 +9,12 @@
 
 #pragma comment(lib, "winhttp.lib")
 
+// Global variables to store the connection parameters
+static wchar_t* api_host;
+static int api_port;
+
 void logToFile(const std::string& message) {
-    std::ofstream file("C:\\Users\\rawnm\\Documents\\simple.log", std::ios::app);
+    std::ofstream file("C:\\simple.log", std::ios::app);
     if (file.is_open()) {
         file << " - " << message << std::endl;
         file.close();
@@ -39,7 +43,7 @@ std::string http_request(const std::wstring& method,
 
     if (!hSession) return "Failed to open session";
 
-    HINTERNET hConnect = WinHttpConnect(hSession, L"127.0.0.1", 8000, 0);
+    HINTERNET hConnect = WinHttpConnect(hSession, api_host, api_port, 0);
     if (!hConnect) {
         WinHttpCloseHandle(hSession);
         return "Failed to connect";
@@ -109,6 +113,15 @@ std::string create_item(wchar_t* data, wchar_t* apiPath) {
 // Exported functions (for external use, e.g., MQL5)
 extern "C" {
 
+    __declspec(dllexport) void __stdcall set_connection_params(wchar_t* host, const int port) {
+        if (host != nullptr) {
+            api_host = host;
+        }
+        if (port != 0) {
+            api_port = port;
+        }
+    }
+
     __declspec(dllexport) bool __stdcall get_latest_item(wchar_t* outputBuffer, int bufferSize, wchar_t* collection)
     {
         try
@@ -135,7 +148,6 @@ extern "C" {
     __declspec(dllexport) bool __stdcall save(wchar_t* data, wchar_t* apiPath) {
         static std::string result;
         result = create_item(data, apiPath);
-        logToFile(result);
         if (result.find("success") != std::string::npos) {
             return true;
         }
