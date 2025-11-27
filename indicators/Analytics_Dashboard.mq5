@@ -32,8 +32,7 @@ input int smallChartWidth = 850; //small chart width
 input int smallChartHeight = 900; //small chart height
 input bool sendPieChartsBack = false; //send pie charts to back
 input int pieChartFontSize = 30; //pie chart font size
-input int mainBtnHeight = 50; //main buttons height
-input int mainBtnFontSize = 10;
+
 input int subBtnFontSize = 9;
 
 #include <ramesh\HelperFunctions.mqh>;
@@ -150,10 +149,10 @@ string executionAnalyticsMetricsName = ADString + "_execution_analytics_metrics"
 
 string positionAnalyticsMetricsName = ADString + "_position_analytics_metrics";
 
-// assuming that fontsize 10 requires addtion of 70 i.e. stringlen * frontsize + 70
+int mainBtnHeight = 25; //main buttons height
+int mainBtnFontSize = 10;
 int TextLenInPixel(string text, int fontSize){
-   return (StringLen(text) * fontSize) + 80 + ((fontSize - 10) * 7);
-   
+   return (StringLen(text) * fontSize) - 20;  
 };
 
 int detailBtnWidth = TextLenInPixel(detailsView, subBtnFontSize);
@@ -437,46 +436,46 @@ void PerformanceAnalytics()
    string maxRUSValueRange = rise;
    color clrText = clrBlack;
    ENUM_BASE_CORNER bseCrnr = CORNER_LEFT_UPPER;
-   objLabel.LabelCreate(0, name + "_title", 0, -1500, 100, bseCrnr, title, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_title", 0, -1500, 50, bseCrnr, title, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
-   objLabel.LabelCreate(0, name + "_totalProfit", 0, -1500, 160, bseCrnr, totalProfit, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_totalProfit_view", -1500, 160, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
-   objLabel.LabelCreate(0, name + "_mostProfited", 0, -1500, 200, bseCrnr, mostProfited, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_totalProfit", 0, -1500, 80, bseCrnr, totalProfit, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   chartBtn.Create("_totalProfit_view", -1500, 80, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   objLabel.LabelCreate(0, name + "_mostProfited", 0, -1500, 100, bseCrnr, mostProfited, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
-   objLabel.LabelCreate(0, name + "_totalLoss", 0, -1500, 260, bseCrnr, totalLoss, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_totalLoss_view", -1500, 260, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
-   objLabel.LabelCreate(0, name + "_mostLost", 0, -1500, 300, bseCrnr, mostLost, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_totalLoss", 0, -1500, 120, bseCrnr, totalLoss, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   chartBtn.Create("_totalLoss_view", -1500, 120, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   objLabel.LabelCreate(0, name + "_mostLost", 0, -1500, 140, bseCrnr, mostLost, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
-   objLabel.LabelCreate(0, name + "_profitFactor", 0, -1500, 360, bseCrnr, profitFactor, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_profitFactor_view", -1500, 360, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
-   objLabel.LabelCreate(0, name + "_highestPF", 0, -1500, 400, bseCrnr, highestPF, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_profitFactor", 0, -1500, 160, bseCrnr, profitFactor, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   chartBtn.Create("_profitFactor_view", -1500, 160, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   objLabel.LabelCreate(0, name + "_highestPF", 0, -1500, 180, bseCrnr, highestPF, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
-   objLabel.LabelCreate(0, name + "_expectancy", 0, -1500, 460, bseCrnr, expectancy, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_expectancy_view", -1500, 460, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
-   objLabel.LabelCreate(0, name + "_mostExpected", 0, -1500, 500, bseCrnr, mostExpected, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_expectancy", 0, -1500, 200, bseCrnr, expectancy, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   chartBtn.Create("_expectancy_view", -1500, 200, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   objLabel.LabelCreate(0, name + "_mostExpected", 0, -1500, 220, bseCrnr, mostExpected, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
-   objLabel.LabelCreate(0, name + "_winRate", 0, -1500, 560, bseCrnr, winRate, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_winRate_view", -1500, 560, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
-   objLabel.LabelCreate(0, name + "_maxWinR", 0, -1500, 600, bseCrnr, maxWinR, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_winRate", 0, -1500, 240, bseCrnr, winRate, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   chartBtn.Create("_winRate_view", -1500, 240, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   objLabel.LabelCreate(0, name + "_maxWinR", 0, -1500, 260, bseCrnr, maxWinR, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
-   objLabel.LabelCreate(0, name + "_arrr", 0, -1500, 660, bseCrnr, arrr, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_arrr_view", -1500, 660, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   objLabel.LabelCreate(0, name + "_arrr", 0, -1500, 280, bseCrnr, arrr, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   chartBtn.Create("_arrr_view", -1500, 280, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
    
-   objLabel.LabelCreate(0, name + "_maxDD", 0, -1500, 720, bseCrnr, maxDD, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_maxDD_view", -1500, 720, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
-   objLabel.LabelCreate(0, name + "_maxDDOValueRange", 0, -1500, 760, bseCrnr, maxDDOValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   objLabel.LabelCreate(0, name + "_maxDDODateRange", 0, -1500, 780, bseCrnr, maxDDODateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   objLabel.LabelCreate(0, name + "_maxDDSValue", 0, -1500, 820, bseCrnr, maxDDSValue, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   objLabel.LabelCreate(0, name + "_maxDDSValueRange", 0, -1500, 840, bseCrnr, maxDDSValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   objLabel.LabelCreate(0, name + "_maxDDSDateRange", 0, -1500, 860, bseCrnr, maxDDSDateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxDD", 0, -1500, 310, bseCrnr, maxDD, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   chartBtn.Create("_maxDD_view", -1500, 310, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   objLabel.LabelCreate(0, name + "_maxDDOValueRange", 0, -1500, 330, bseCrnr, maxDDOValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxDDODateRange", 0, -1500, 345, bseCrnr, maxDDODateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxDDSValue", 0, -1500, 360, bseCrnr, maxDDSValue, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxDDSValueRange", 0, -1500, 375, bseCrnr, maxDDSValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxDDSDateRange", 0, -1500, 390, bseCrnr, maxDDSDateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
       
-   objLabel.LabelCreate(0, name + "_maxRU", 0, -1500, 920, bseCrnr, maxRU, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_maxRU_view", -1500, 920, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
-   objLabel.LabelCreate(0, name + "_maxRUOValueRange", 0, -1500, 960, bseCrnr, maxRUOValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   objLabel.LabelCreate(0, name + "_maxRUODateRange", 0, -1500, 980, bseCrnr, maxRUODateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   objLabel.LabelCreate(0, name + "_maxRUSValue", 0, -1500, 1020, bseCrnr, maxRUSValue, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   objLabel.LabelCreate(0, name + "_maxRUSValueRange", 0, -1500, 1040, bseCrnr, maxRUSValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   objLabel.LabelCreate(0, name + "_maxRUSDateRange", 0, -1500, 1060, bseCrnr, maxRUSDateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxRU", 0, -1500, 410, bseCrnr, maxRU, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   chartBtn.Create("_maxRU_view", -1500, 410, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   objLabel.LabelCreate(0, name + "_maxRUOValueRange", 0, -1500, 430, bseCrnr, maxRUOValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxRUODateRange", 0, -1500, 445, bseCrnr, maxRUODateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxRUSValue", 0, -1500, 460, bseCrnr, maxRUSValue, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxRUSValueRange", 0, -1500, 475, bseCrnr, maxRUSValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_maxRUSDateRange", 0, -1500, 490, bseCrnr, maxRUSDateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
 }
 
 void PerformanceAnalyticsMove(int index)
@@ -485,54 +484,54 @@ void PerformanceAnalyticsMove(int index)
    if(index == 0) x = 5;
    int prevX = (int)ObjectGetInteger(0, perfomanceAnalyticsMetricsName + "_title", OBJPROP_XDISTANCE);
    if(x != prevX) {
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_title", x, 100);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_title", x, 50);
       
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_totalProfit", x, 160);
-      int changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_totalProfit",OBJPROP_TEXT), subBtnFontSize) + 130;
-      chartBtn.Move("_totalProfit_view", changedX, 160, detailBtnWidth, 40);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostProfited", x, 200);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_totalProfit", x, 80);
+      int changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_totalProfit",OBJPROP_TEXT), subBtnFontSize) + 120;
+      chartBtn.Move("_totalProfit_view", changedX, 80, detailBtnWidth, 20);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostProfited", x, 100);
       
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_totalLoss", x, 260);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_totalLoss",OBJPROP_TEXT), subBtnFontSize) + 150;
-      chartBtn.Move("_totalLoss_view", changedX, 260, detailBtnWidth, 40);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostLost", x, 300);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_totalLoss", x, 120);
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_totalLoss",OBJPROP_TEXT), subBtnFontSize) + 110;
+      chartBtn.Move("_totalLoss_view", changedX, 120, detailBtnWidth, 20);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostLost", x, 140);
       
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_profitFactor", x, 360);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_profitFactor",OBJPROP_TEXT), subBtnFontSize) + 160;
-      chartBtn.Move("_profitFactor_view", changedX, 360, detailBtnWidth, 40);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_highestPF", x, 400);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_profitFactor", x, 160);
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_profitFactor",OBJPROP_TEXT), subBtnFontSize) + 40;
+      chartBtn.Move("_profitFactor_view", changedX, 160, detailBtnWidth, 20);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_highestPF", x, 180);
       
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_expectancy", x, 460);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_expectancy",OBJPROP_TEXT), subBtnFontSize) + 170;
-      chartBtn.Move("_expectancy_view", changedX, 460, detailBtnWidth, 40);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostExpected", x, 500);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_expectancy", x, 200);
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_expectancy",OBJPROP_TEXT), subBtnFontSize) + 140;
+      chartBtn.Move("_expectancy_view", changedX, 200, detailBtnWidth, 20);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostExpected", x, 220);
       
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_winRate", x, 560);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_winRate",OBJPROP_TEXT), subBtnFontSize) + 170;
-      chartBtn.Move("_winRate_view", changedX, 560, detailBtnWidth, 40);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxWinR", x, 600);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_winRate", x, 240);
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_winRate",OBJPROP_TEXT), subBtnFontSize) + 130;
+      chartBtn.Move("_winRate_view", changedX, 240, detailBtnWidth, 20);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxWinR", x, 260);
       
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_arrr", x, 660);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_arrr",OBJPROP_TEXT), subBtnFontSize) + 270;
-      chartBtn.Move("_arrr_view", changedX, 660, detailBtnWidth, 40);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_arrr", x, 280);
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_arrr",OBJPROP_TEXT), subBtnFontSize) + 130;
+      chartBtn.Move("_arrr_view", changedX, 280, detailBtnWidth, 20);
       
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_maxDD", x, 720);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_maxDD",OBJPROP_TEXT), subBtnFontSize) + 210;
-      chartBtn.Move("_maxDD_view", changedX, 720, detailBtnWidth, 40);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDOValueRange", x, 760);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDODateRange", x, 780);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDSValue", x, 820);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDSValueRange", x, 840);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDSDateRange", x, 860);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_maxDD", x, 310);
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_maxDD",OBJPROP_TEXT), subBtnFontSize) + 150;
+      chartBtn.Move("_maxDD_view", changedX, 310, detailBtnWidth, 20);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDOValueRange", x, 330);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDODateRange", x, 345);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDSValue", x, 360);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDSValueRange", x, 375);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDSDateRange", x, 390);
       
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_maxRU", x, 920);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_maxRU", x, 410);
       changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_maxRU",OBJPROP_TEXT), subBtnFontSize) + 180;
-      chartBtn.Move("_maxRU_view", changedX, 920, detailBtnWidth, 40);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUOValueRange", x, 960);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUODateRange", x, 980);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUSValue", x, 1020);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUSValueRange", x, 1040);
-      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUSDateRange", x, 1060);
+      chartBtn.Move("_maxRU_view", changedX, 410, detailBtnWidth, 20);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUOValueRange", x, 430);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUODateRange", x, 445);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUSValue", x, 460);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUSValueRange", x, 475);
+      objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUSDateRange", x, 490);
    }
 }
 
@@ -892,7 +891,7 @@ int OnInit()
    IndicatorSetString(INDICATOR_SHORTNAME,"Trade Analytics Dashboard Corrected");
    EventSetTimer(5);
    CreateAllPieCharts();
-   int rectHeight = (int)chartHeight - 70;
+   int rectHeight = (int)chartHeight - 20;
    for(int i = 0; i < ArraySize(analytics); i++)
       rectWidth += TextLenInPixel(analytics[i], mainBtnFontSize) + 6;
    rectObj.RectLabelCreate(0,ADString+"_rect",0,0,0,rectWidth,rectHeight,clrAliceBlue);
