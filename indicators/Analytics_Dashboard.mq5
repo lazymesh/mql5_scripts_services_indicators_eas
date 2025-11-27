@@ -76,6 +76,9 @@ PieChartHelper *perfPieChartObjs[] = {p_winR, p_expectancy, p_profitF, p_totalPr
                                       p_slippage, p_entrySpread, p_exitSpread, p_otherFees, p_impactOnProfit, p_impactOnLoss,
                                       p_totalOTrades, p_totalPTrades, p_totalLTrades};
 
+int chartDisplayX = 900;
+int chartDisplayY = 100;
+
 #include <ramesh/Button.mqh>;
 Button mainBtns(ADString + "_mains");
 Button chartBtn(ADString + "_performance");
@@ -791,7 +794,7 @@ void PositionAnalytics()
    string totalHoldTime = StringFormat("Total average hold time: %d",ts.avgHoldTime);
    color clrText = clrBlack;
    ENUM_BASE_CORNER bseCrnr = CORNER_LEFT_UPPER;
-   objLabel.LabelCreate(0, name + "_title", 0, -1500, 100, bseCrnr, title, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+   objLabel.LabelCreate(0, name + "_title", 0, -1500, 50, bseCrnr, title, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    totalOpenPositions = PositionsTotal();
    if(totalOpenPositions > 0) {
       double totalProfit = 0; double totalLoss = 0; CHashMap<string, double> openTradesCount;
@@ -816,14 +819,14 @@ void PositionAnalytics()
       string totalOpenProfit = StringFormat("Total open profits: %.2f",totalProfit);
       string totalOpenLoss = StringFormat("Total open losses: %.2f", totalLoss);
       
-      objLabel.LabelCreate(0, name + "_totalOpenTrades", 0, -1500, 180, bseCrnr, openTrades, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-      chartBtn.Create("_openTrades_view", -1500, 180, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+      objLabel.LabelCreate(0, name + "_totalOpenTrades", 0, -1500, 80, bseCrnr, openTrades, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+      chartBtn.Create("_openTrades_view", -1500, 80, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
       
-      objLabel.LabelCreate(0, name + "_totalOpenProfits", 0, -1500, 240, bseCrnr, totalOpenProfit, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-      chartBtn.Create("_openProfits_view", -1500, 240, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+      objLabel.LabelCreate(0, name + "_totalOpenProfits", 0, -1500, 110, bseCrnr, totalOpenProfit, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+      chartBtn.Create("_openProfits_view", -1500, 110, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
       
-      objLabel.LabelCreate(0, name + "_totalOpenLosses", 0, -1500, 300, bseCrnr, totalOpenLoss, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-      chartBtn.Create("_openLosses_view", -1500, 300, detailBtnWidth, 40, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+      objLabel.LabelCreate(0, name + "_totalOpenLosses", 0, -1500, 140, bseCrnr, totalOpenLoss, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
+      chartBtn.Create("_openLosses_view", -1500, 140, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
    }
    else {
       objLabel.LabelCreate(0, name + "_noOpenTrades", 0, -1500, 180, bseCrnr, "No open trades yet", "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
@@ -861,20 +864,20 @@ void PositionAnalyticsMove(int index)
    if(index == 3) x = 5;
    int prevX = (int)ObjectGetInteger(0, positionAnalyticsMetricsName + "_title", OBJPROP_XDISTANCE);
    if(x != prevX) {
-      objLabel.LabelMove(0, positionAnalyticsMetricsName + "_title", x, 100); 
+      objLabel.LabelMove(0, positionAnalyticsMetricsName + "_title", x, 50); 
       
       if(totalOpenPositions > 0){
-         objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenTrades", x, 180);
-         int changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenTrades",OBJPROP_TEXT), subBtnFontSize) + 290;
-         chartBtn.Move("_openTrades_view", changedX, 180, detailBtnWidth, 40);
+         objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenTrades", x, 80);
+         int changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenTrades",OBJPROP_TEXT), subBtnFontSize) + 150;
+         chartBtn.Move("_openTrades_view", changedX, 80, detailBtnWidth, 20);
          
-         objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenProfits", x, 240); 
-         changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenProfits",OBJPROP_TEXT), subBtnFontSize) + 290;
-         chartBtn.Move("_openProfits_view", changedX, 240, detailBtnWidth, 40);
+         objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenProfits", x, 110); 
+         changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenProfits",OBJPROP_TEXT), subBtnFontSize) + 150;
+         chartBtn.Move("_openProfits_view", changedX, 110, detailBtnWidth, 20);
          
-         objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenLosses", x, 300); 
-         changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenLosses",OBJPROP_TEXT), subBtnFontSize) + 290;
-         chartBtn.Move("_openLosses_view", changedX, 300, detailBtnWidth, 40);
+         objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenLosses", x, 140); 
+         changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenLosses",OBJPROP_TEXT), subBtnFontSize) + 150;
+         chartBtn.Move("_openLosses_view", changedX, 140, detailBtnWidth, 20);
       }
       else {
          objLabel.LabelMove(0, positionAnalyticsMetricsName + "_noOpenTrades", x, 180); 
@@ -1057,53 +1060,53 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       HideAllPieCharts();
       if(StringFind(sparam, "_view", 0) >=0) {
          if(StringFind(sparam, "_winRate_view") >= 0)
-            p_winR.ChangeLocation(1100, 160);
+            p_winR.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_totalTrades_view") >= 0)
-            p_totalT.ChangeLocation(1100, 160);
+            p_totalT.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_totalWins_view") >= 0)
-            p_win.ChangeLocation(1100, 160);
+            p_win.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_totalLosses_view") >= 0)
-            p_losses.ChangeLocation(1100, 160);
+            p_losses.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_totalProfit_view") >= 0)
-            p_totalProfit.ChangeLocation(1100, 160);
+            p_totalProfit.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_totalLoss_view") >= 0)
-            p_totalLoss.ChangeLocation(1100, 160);
+            p_totalLoss.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_profitFactor_view") >= 0)
-            p_profitF.ChangeLocation(1100, 160);
+            p_profitF.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_expectancy_view") >= 0)
-            p_expectancy.ChangeLocation(1100, 160);
+            p_expectancy.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_arrr_view") >= 0)
-            p_arrr.ChangeLocation(1100, 160);
+            p_arrr.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_maxDD_view") >= 0)
-            p_maxDD.ChangeLocation(1100, 160);
+            p_maxDD.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_maxRU_view") >= 0)
-            p_maxRU.ChangeLocation(1100, 160);
+            p_maxRU.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_totalHoldTime_view") >= 0)
-            p_holdTime.ChangeLocation(1100, 160);
+            p_holdTime.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_slStopTrade_view") >= 0)
-            p_slStopped.ChangeLocation(1100, 160);
+            p_slStopped.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_tpStopTrade_view") >= 0)
-            p_tpStopped.ChangeLocation(1100, 160);
+            p_tpStopped.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_manualStopTrade_view") >= 0)
-            p_manualStopped.ChangeLocation(1100, 160);
+            p_manualStopped.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_avgSlippage_view") >= 0)
-            p_slippage.ChangeLocation(1100, 160);
+            p_slippage.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_entryAvgSpread_view") >= 0)
-            p_entrySpread.ChangeLocation(1100, 160);
+            p_entrySpread.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_exitAvgSpread_view") >= 0)
-            p_exitSpread.ChangeLocation(1100, 160);
+            p_exitSpread.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_otherFees_view") >= 0)
-            p_otherFees.ChangeLocation(1100, 160);
+            p_otherFees.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_impactOnProfit_view") >= 0)
-            p_impactOnProfit.ChangeLocation(1100, 160);
+            p_impactOnProfit.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_impactOnLoss_view") >= 0)
-            p_impactOnLoss.ChangeLocation(1100, 160);
+            p_impactOnLoss.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_openTrades_view") >= 0)
-            p_totalOTrades.ChangeLocation(1100, 160);
+            p_totalOTrades.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_openProfits_view") >= 0)
-            p_totalPTrades.ChangeLocation(1100, 160);
+            p_totalPTrades.ChangeLocation(chartDisplayX, chartDisplayY);
          if(StringFind(sparam, "_openLosses_view") >= 0)
-            p_totalLTrades.ChangeLocation(1100, 160);
+            p_totalLTrades.ChangeLocation(chartDisplayX, chartDisplayY);
       }
       else {
          for(int i=0;i<ArraySize(analytics);i++)
