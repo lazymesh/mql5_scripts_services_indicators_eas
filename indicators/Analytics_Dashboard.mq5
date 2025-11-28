@@ -1,9 +1,5 @@
-//+------------------------------------------------------------------+
-//| Trade Analytics Dashboard - Corrected for MQL5                   |
-//| Author: GPT-5 | 2025                                             |
-//+------------------------------------------------------------------+
-#property copyright "Copyright 2025, MetaQuotes Ltd."
-#property link      "https://www.mql5.com"
+#property copyright "Ramesh Maharjan"
+#property link      "https://www.mql5.com/en/market/product/156684"
 #property version   "1.00"
 #property indicator_chart_window
 #property indicator_plots 0
@@ -28,12 +24,16 @@ string chTitles[] = {"win-rates(%)","expectancy","profit-factor","gross-profit",
                      "avg-slippage","avg-entry-spread","avg-exit-spread","commission+swap","impact-on-profit","impact-on-loss",
                      "total-open-trades","open-profit-trades","open-loss-trades"};
 
-input int smallChartWidth = 850; //small chart width
-input int smallChartHeight = 900; //small chart height
+input int pChartWidth = 450; //small chart width
+input int pChartHeight = 450; //small chart height
 input bool sendPieChartsBack = false; //send pie charts to back
-input int pieChartFontSize = 30; //pie chart font size
+input int pieChartFontSize = 15; //pie chart font size
 
-input int subBtnFontSize = 9;
+
+int mBH = 25; //main buttons height
+int sBH = 20; // sub buttons height
+int mBFS = 10; // main button font size
+int sBFS = 9; // sub button font size
 
 #include <ramesh\HelperFunctions.mqh>;
 HelperFunctions helper;
@@ -43,41 +43,41 @@ ObjectLabel objLabel;
 
 #include <ramesh\PieChartHelper.mqh>;
 // performance pie charts
-PieChartHelper *p_winR = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_expectancy = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_profitF = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_totalProfit = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_totalLoss = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_arrr = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_maxDD = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_maxRU = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_winR = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_expectancy = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_profitF = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_totalProfit = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_totalLoss = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_arrr = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_maxDD = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_maxRU = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
 //trade behaviour pie charts              
-PieChartHelper *p_totalT = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_win = new PieChartHelper(smallChartWidth, smallChartHeight,true,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_losses = new PieChartHelper(smallChartWidth, smallChartHeight,true,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_holdTime = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_slStopped = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_tpStopped = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_manualStopped = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_totalT = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_win = new PieChartHelper(pChartWidth,pChartHeight,true,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_losses = new PieChartHelper(pChartWidth,pChartHeight,true,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_holdTime = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_slStopped = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_tpStopped = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_manualStopped = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
 // execution pie charts
-PieChartHelper *p_slippage = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_entrySpread = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_exitSpread = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_otherFees = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_impactOnProfit = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_impactOnLoss = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_slippage = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_entrySpread = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_exitSpread = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_otherFees = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_impactOnProfit = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_impactOnLoss = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
 // position pie charts
-PieChartHelper *p_totalOTrades = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_totalPTrades = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
-PieChartHelper *p_totalLTrades = new PieChartHelper(smallChartWidth, smallChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_totalOTrades = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_totalPTrades = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
+PieChartHelper *p_totalLTrades = new PieChartHelper(pChartWidth,pChartHeight,false,sendPieChartsBack,pieChartFontSize);
 
 PieChartHelper *perfPieChartObjs[] = {p_winR, p_expectancy, p_profitF, p_totalProfit, p_totalLoss, p_arrr, p_maxDD, p_maxRU,
                                       p_totalT, p_win, p_losses, p_holdTime, p_slStopped, p_tpStopped, p_manualStopped,
                                       p_slippage, p_entrySpread, p_exitSpread, p_otherFees, p_impactOnProfit, p_impactOnLoss,
                                       p_totalOTrades, p_totalPTrades, p_totalLTrades};
 
-int chartDisplayX = 900;
-int chartDisplayY = 100;
+int chartDisplayX = 600;
+int chartDisplayY = 50;
 
 #include <ramesh/Button.mqh>;
 Button mainBtns(ADString + "_mains");
@@ -152,13 +152,12 @@ string executionAnalyticsMetricsName = ADString + "_execution_analytics_metrics"
 
 string positionAnalyticsMetricsName = ADString + "_position_analytics_metrics";
 
-int mainBtnHeight = 25; //main buttons height
-int mainBtnFontSize = 10;
+
 int TextLenInPixel(string text, int fontSize){
    return (StringLen(text) * fontSize) - 20;  
 };
 
-int detailBtnWidth = TextLenInPixel(detailsView, subBtnFontSize);
+int detailBtnWidth = TextLenInPixel(detailsView, sBFS);
 
 int totalOpenPositions = 0;
 
@@ -442,30 +441,30 @@ void PerformanceAnalytics()
    objLabel.LabelCreate(0, name + "_title", 0, -1500, 50, bseCrnr, title, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_totalProfit", 0, -1500, 80, bseCrnr, totalProfit, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_totalProfit_view", -1500, 80, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_totalProfit_view", -1500, 80, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_mostProfited", 0, -1500, 100, bseCrnr, mostProfited, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_totalLoss", 0, -1500, 120, bseCrnr, totalLoss, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_totalLoss_view", -1500, 120, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_totalLoss_view", -1500, 120, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_mostLost", 0, -1500, 140, bseCrnr, mostLost, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_profitFactor", 0, -1500, 160, bseCrnr, profitFactor, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_profitFactor_view", -1500, 160, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_profitFactor_view", -1500, 160, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_highestPF", 0, -1500, 180, bseCrnr, highestPF, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_expectancy", 0, -1500, 200, bseCrnr, expectancy, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_expectancy_view", -1500, 200, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_expectancy_view", -1500, 200, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_mostExpected", 0, -1500, 220, bseCrnr, mostExpected, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_winRate", 0, -1500, 240, bseCrnr, winRate, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_winRate_view", -1500, 240, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_winRate_view", -1500, 240, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_maxWinR", 0, -1500, 260, bseCrnr, maxWinR, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_arrr", 0, -1500, 280, bseCrnr, arrr, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_arrr_view", -1500, 280, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_arrr_view", -1500, 280, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    
    objLabel.LabelCreate(0, name + "_maxDD", 0, -1500, 310, bseCrnr, maxDD, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_maxDD_view", -1500, 310, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_maxDD_view", -1500, 310, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_maxDDOValueRange", 0, -1500, 330, bseCrnr, maxDDOValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    objLabel.LabelCreate(0, name + "_maxDDODateRange", 0, -1500, 345, bseCrnr, maxDDODateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    objLabel.LabelCreate(0, name + "_maxDDSValue", 0, -1500, 360, bseCrnr, maxDDSValue, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
@@ -473,7 +472,7 @@ void PerformanceAnalytics()
    objLabel.LabelCreate(0, name + "_maxDDSDateRange", 0, -1500, 390, bseCrnr, maxDDSDateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
       
    objLabel.LabelCreate(0, name + "_maxRU", 0, -1500, 410, bseCrnr, maxRU, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_maxRU_view", -1500, 410, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_maxRU_view", -1500, 410, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_maxRUOValueRange", 0, -1500, 430, bseCrnr, maxRUOValueRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    objLabel.LabelCreate(0, name + "_maxRUODateRange", 0, -1500, 445, bseCrnr, maxRUODateRange, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    objLabel.LabelCreate(0, name + "_maxRUSValue", 0, -1500, 460, bseCrnr, maxRUSValue, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
@@ -490,36 +489,36 @@ void PerformanceAnalyticsMove(int index)
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_title", x, 50);
       
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_totalProfit", x, 80);
-      int changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_totalProfit",OBJPROP_TEXT), subBtnFontSize) + 120;
+      int changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_totalProfit",OBJPROP_TEXT), sBFS) + 120;
       chartBtn.Move("_totalProfit_view", changedX, 80, detailBtnWidth, 20);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostProfited", x, 100);
       
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_totalLoss", x, 120);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_totalLoss",OBJPROP_TEXT), subBtnFontSize) + 110;
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_totalLoss",OBJPROP_TEXT), sBFS) + 110;
       chartBtn.Move("_totalLoss_view", changedX, 120, detailBtnWidth, 20);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostLost", x, 140);
       
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_profitFactor", x, 160);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_profitFactor",OBJPROP_TEXT), subBtnFontSize) + 40;
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_profitFactor",OBJPROP_TEXT), sBFS) + 40;
       chartBtn.Move("_profitFactor_view", changedX, 160, detailBtnWidth, 20);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_highestPF", x, 180);
       
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_expectancy", x, 200);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_expectancy",OBJPROP_TEXT), subBtnFontSize) + 140;
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_expectancy",OBJPROP_TEXT), sBFS) + 140;
       chartBtn.Move("_expectancy_view", changedX, 200, detailBtnWidth, 20);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_mostExpected", x, 220);
       
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_winRate", x, 240);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_winRate",OBJPROP_TEXT), subBtnFontSize) + 130;
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_winRate",OBJPROP_TEXT), sBFS) + 130;
       chartBtn.Move("_winRate_view", changedX, 240, detailBtnWidth, 20);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxWinR", x, 260);
       
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_arrr", x, 280);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_arrr",OBJPROP_TEXT), subBtnFontSize) + 130;
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_arrr",OBJPROP_TEXT), sBFS) + 130;
       chartBtn.Move("_arrr_view", changedX, 280, detailBtnWidth, 20);
       
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_maxDD", x, 310);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_maxDD",OBJPROP_TEXT), subBtnFontSize) + 150;
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_maxDD",OBJPROP_TEXT), sBFS) + 150;
       chartBtn.Move("_maxDD_view", changedX, 310, detailBtnWidth, 20);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDOValueRange", x, 330);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDODateRange", x, 345);
@@ -528,7 +527,7 @@ void PerformanceAnalyticsMove(int index)
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxDDSDateRange", x, 390);
       
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName + "_maxRU", x, 410);
-      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_maxRU",OBJPROP_TEXT), subBtnFontSize) + 180;
+      changedX = x + TextLenInPixel(ObjectGetString(0,perfomanceAnalyticsMetricsName + "_maxRU",OBJPROP_TEXT), sBFS) + 180;
       chartBtn.Move("_maxRU_view", changedX, 410, detailBtnWidth, 20);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUOValueRange", x, 430);
       objLabel.LabelMove(0, perfomanceAnalyticsMetricsName+"_maxRUODateRange", x, 445);
@@ -610,19 +609,19 @@ void TradeAnalytics()
    objLabel.LabelCreate(0, name + "_title", 0, -1500, 50, bseCrnr, title, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_totalTrades", 0, -1500, 80, bseCrnr, totalTrades, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_totalTrades_view", -1500, 80, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_totalTrades_view", -1500, 80, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_mostTraded", 0, -1500, 100, bseCrnr, mostTraded, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_totalWins", 0, -1500, 120, bseCrnr, totalWins, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_totalWins_view", -1500, 120, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_totalWins_view", -1500, 120, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_mostWon", 0, -1500, 140, bseCrnr, mostWon, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_totalLosses", 0, -1500, 160, bseCrnr, totalLosses, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_totalLosses_view", -1500, 160, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_totalLosses_view", -1500, 160, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_mostLost", 0, -1500, 180, bseCrnr, mostLost, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_totalHoldTime", 0, -1500, 200, bseCrnr, totalHoldTime, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_totalHoldTime_view", -1500, 200, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_totalHoldTime_view", -1500, 200, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_maxHoldStr", 0, -1500, 220, bseCrnr, maxHoldStr, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_avgTradeLot", 0, -1500, 240, bseCrnr, avgTradeSize, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
@@ -630,15 +629,15 @@ void TradeAnalytics()
    objLabel.LabelCreate(0, name + "_minAvgTradeLot", 0, -1500, 275, bseCrnr, minAvgTradeSize, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_slStopTrade", 0, -1500, 295, bseCrnr, slStopTrade, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_slStopTrade_view", -1500, 295, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_slStopTrade_view", -1500, 295, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_maxSlStopTrade", 0, -1500, 315, bseCrnr, maxSlStopTrade, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_tpStopTrade", 0, -1500, 335, bseCrnr, tpStopTrade, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_tpStopTrade_view", -1500, 335, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_tpStopTrade_view", -1500, 335, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_maxTPStopTrade", 0, -1500, 355, bseCrnr, maxTPStopTrade, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    
    objLabel.LabelCreate(0, name + "_manualStopTrade", 0, -1500, 375, bseCrnr, manualStopTrade, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_manualStopTrade_view", -1500, 375, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_manualStopTrade_view", -1500, 375, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    objLabel.LabelCreate(0, name + "_maxManualStopTrade", 0, -1500, 395, bseCrnr, maxManualStopTrade, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
 }
 
@@ -652,22 +651,22 @@ void TradeAnalyticsMove(int index)
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_title", x, 50);
       
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_totalTrades", x, 80);
-      int changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_totalTrades",OBJPROP_TEXT), subBtnFontSize) + 60;
+      int changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_totalTrades",OBJPROP_TEXT), sBFS) + 60;
       chartBtn.Move("_totalTrades_view", changedX, 80, detailBtnWidth, 20);
       objLabel.LabelMove(0, tradeAnalyticsMetricsName+"_mostTraded", x, 100);
       
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_totalWins", x, 120);
-      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_totalWins",OBJPROP_TEXT), subBtnFontSize) + 60;
+      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_totalWins",OBJPROP_TEXT), sBFS) + 60;
       chartBtn.Move("_totalWins_view", changedX, 120, detailBtnWidth, 20);
       objLabel.LabelMove(0, tradeAnalyticsMetricsName+"_mostWon", x, 140);
       
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_totalLosses", x, 160);
-      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_totalLosses",OBJPROP_TEXT), subBtnFontSize) + 80;
+      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_totalLosses",OBJPROP_TEXT), sBFS) + 80;
       chartBtn.Move("_totalLosses_view", changedX, 160, detailBtnWidth, 20);
       objLabel.LabelMove(0, tradeAnalyticsMetricsName+"_mostLost", x, 180);
       
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_totalHoldTime", x, 200);
-      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_totalHoldTime",OBJPROP_TEXT), subBtnFontSize) + 60;
+      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_totalHoldTime",OBJPROP_TEXT), sBFS) + 60;
       chartBtn.Move("_totalHoldTime_view", changedX, 200, detailBtnWidth, 20);    
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_maxHoldStr", x, 220); 
          
@@ -676,17 +675,17 @@ void TradeAnalyticsMove(int index)
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_minAvgTradeLot", x, 275);
       
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_slStopTrade", x, 295); 
-      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_slStopTrade",OBJPROP_TEXT), subBtnFontSize) + 40;
+      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_slStopTrade",OBJPROP_TEXT), sBFS) + 40;
       chartBtn.Move("_slStopTrade_view", changedX, 295, detailBtnWidth, 20);
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_maxSlStopTrade", x, 315);
       
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_tpStopTrade", x, 335); 
-      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_tpStopTrade",OBJPROP_TEXT), subBtnFontSize) + 30;
+      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_tpStopTrade",OBJPROP_TEXT), sBFS) + 30;
       chartBtn.Move("_tpStopTrade_view", changedX, 335, detailBtnWidth, 20);
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_maxTPStopTrade", x, 355);
       
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_manualStopTrade", x, 375); 
-      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_manualStopTrade",OBJPROP_TEXT), subBtnFontSize) + 50;
+      changedX = x + TextLenInPixel(ObjectGetString(0,tradeAnalyticsMetricsName + "_manualStopTrade",OBJPROP_TEXT), sBFS) + 50;
       chartBtn.Move("_manualStopTrade_view", changedX, 375, detailBtnWidth, 20);
       objLabel.LabelMove(0, tradeAnalyticsMetricsName + "_maxManualStopTrade", x, 395);
    }
@@ -730,24 +729,24 @@ void ExectionAnalytics()
    
    objLabel.LabelCreate(0, name + "_slippageInfo1", 0, -1500, 85, bseCrnr, slippageInfo1, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    objLabel.LabelCreate(0, name + "_slippageInfo2", 0, -1500, 100, bseCrnr, slippageInfo2, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_avgSlippage_view", -1500, 85, detailBtnWidth, 30, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_avgSlippage_view", -1500, 85, detailBtnWidth, 30, detailsView, clrOrangeRed, clrWheat, sBFS);
    
    objLabel.LabelCreate(0, name + "_entrySpread1", 0, -1500, 130, bseCrnr, entrySpreadInfo1, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    objLabel.LabelCreate(0, name + "_entrySpread2", 0, -1500, 145, bseCrnr, entrySpreadInfo2, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_entryAvgSpread_view", -1500, 130, detailBtnWidth, 30, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_entryAvgSpread_view", -1500, 130, detailBtnWidth, 30, detailsView, clrOrangeRed, clrWheat, sBFS);
    
    objLabel.LabelCreate(0, name + "_exitSpreadInfo1", 0, -1500, 175, bseCrnr, exitSpreadInfo1, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
    objLabel.LabelCreate(0, name + "_exitSpreadInfo2", 0, -1500, 190, bseCrnr, exitSpreadInfo2, "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_exitAvgSpread_view", -1500, 175, detailBtnWidth, 30, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_exitAvgSpread_view", -1500, 175, detailBtnWidth, 30, detailsView, clrOrangeRed, clrWheat, sBFS);
    
    objLabel.LabelCreate(0, name + "_totalOtherFee", 0, -1500, 230, bseCrnr, totalOtherFees, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_otherFees_view", -1500, 230, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_otherFees_view", -1500, 230, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    
    objLabel.LabelCreate(0, name + "_impactOnProfit", 0, -1500, 270, bseCrnr, impactOnProfit, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_impactOnProfit_view", -1500, 270, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_impactOnProfit_view", -1500, 270, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    
    objLabel.LabelCreate(0, name + "_impactOnLoss", 0, -1500, 310, bseCrnr, impactOnLoss, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-   chartBtn.Create("_impactOnLoss_view", -1500, 310, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+   chartBtn.Create("_impactOnLoss_view", -1500, 310, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
 }
 
 
@@ -773,15 +772,15 @@ void ExecutionAnalyticsMove(int index)
       chartBtn.Move("_exitAvgSpread_view", buttonx, 175, detailBtnWidth, 30);
       
       objLabel.LabelMove(0, executionAnalyticsMetricsName + "_totalOtherFee", x, 230); 
-      int changedX = x + TextLenInPixel(ObjectGetString(0,executionAnalyticsMetricsName + "_totalOtherFee",OBJPROP_TEXT), subBtnFontSize) + 70;
+      int changedX = x + TextLenInPixel(ObjectGetString(0,executionAnalyticsMetricsName + "_totalOtherFee",OBJPROP_TEXT), sBFS) + 70;
       chartBtn.Move("_otherFees_view", changedX, 230, detailBtnWidth, 20);
       
       objLabel.LabelMove(0, executionAnalyticsMetricsName + "_impactOnProfit", x, 270); 
-      changedX = x + TextLenInPixel(ObjectGetString(0,executionAnalyticsMetricsName + "_impactOnProfit",OBJPROP_TEXT), subBtnFontSize) + 110;
+      changedX = x + TextLenInPixel(ObjectGetString(0,executionAnalyticsMetricsName + "_impactOnProfit",OBJPROP_TEXT), sBFS) + 110;
       chartBtn.Move("_impactOnProfit_view", changedX, 270, detailBtnWidth, 20);
       
       objLabel.LabelMove(0, executionAnalyticsMetricsName + "_impactOnLoss", x, 310); 
-      changedX = x + TextLenInPixel(ObjectGetString(0,executionAnalyticsMetricsName + "_impactOnLoss",OBJPROP_TEXT), subBtnFontSize) + 120;
+      changedX = x + TextLenInPixel(ObjectGetString(0,executionAnalyticsMetricsName + "_impactOnLoss",OBJPROP_TEXT), sBFS) + 120;
       chartBtn.Move("_impactOnLoss_view", changedX, 310, detailBtnWidth, 20);
    }
 }
@@ -820,13 +819,13 @@ void PositionAnalytics()
       string totalOpenLoss = StringFormat("Total open losses: %.2f", totalLoss);
       
       objLabel.LabelCreate(0, name + "_totalOpenTrades", 0, -1500, 80, bseCrnr, openTrades, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-      chartBtn.Create("_openTrades_view", -1500, 80, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+      chartBtn.Create("_openTrades_view", -1500, 80, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
       
       objLabel.LabelCreate(0, name + "_totalOpenProfits", 0, -1500, 110, bseCrnr, totalOpenProfit, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-      chartBtn.Create("_openProfits_view", -1500, 110, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+      chartBtn.Create("_openProfits_view", -1500, 110, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
       
       objLabel.LabelCreate(0, name + "_totalOpenLosses", 0, -1500, 140, bseCrnr, totalOpenLoss, "Arial", 15, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
-      chartBtn.Create("_openLosses_view", -1500, 140, detailBtnWidth, 20, detailsView, clrOrangeRed, clrWheat, subBtnFontSize);
+      chartBtn.Create("_openLosses_view", -1500, 140, detailBtnWidth, sBH, detailsView, clrOrangeRed, clrWheat, sBFS);
    }
    else {
       objLabel.LabelCreate(0, name + "_noOpenTrades", 0, -1500, 180, bseCrnr, "No open trades yet", "Arial", 9, clrText, 0.0, ANCHOR_LEFT_UPPER, false);
@@ -868,15 +867,15 @@ void PositionAnalyticsMove(int index)
       
       if(totalOpenPositions > 0){
          objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenTrades", x, 80);
-         int changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenTrades",OBJPROP_TEXT), subBtnFontSize) + 150;
+         int changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenTrades",OBJPROP_TEXT), sBFS) + 150;
          chartBtn.Move("_openTrades_view", changedX, 80, detailBtnWidth, 20);
          
          objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenProfits", x, 110); 
-         changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenProfits",OBJPROP_TEXT), subBtnFontSize) + 150;
+         changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenProfits",OBJPROP_TEXT), sBFS) + 150;
          chartBtn.Move("_openProfits_view", changedX, 110, detailBtnWidth, 20);
          
          objLabel.LabelMove(0, positionAnalyticsMetricsName + "_totalOpenLosses", x, 140); 
-         changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenLosses",OBJPROP_TEXT), subBtnFontSize) + 150;
+         changedX = x + TextLenInPixel(ObjectGetString(0,positionAnalyticsMetricsName + "_totalOpenLosses",OBJPROP_TEXT), sBFS) + 150;
          chartBtn.Move("_openLosses_view", changedX, 140, detailBtnWidth, 20);
       }
       else {
@@ -894,7 +893,7 @@ int OnInit()
    CreateAllPieCharts();
    int rectHeight = (int)chartHeight - 20;
    for(int i = 0; i < ArraySize(analytics); i++)
-      rectWidth += TextLenInPixel(analytics[i], mainBtnFontSize) + 6;
+      rectWidth += TextLenInPixel(analytics[i], mBFS) + 6;
    rectObj.RectLabelCreate(0,ADString+"_rect",0,0,0,rectWidth,rectHeight,clrAliceBlue);
    CreateMainButtons();
    CreateNonPressedText();
@@ -917,8 +916,8 @@ void CreateMainButtons() {
    int x = 3;
    int y = 25;
    for(int i=0;i<ArraySize(analytics);i++){
-      int btnWidth = TextLenInPixel(analytics[i], mainBtnFontSize);
-      mainBtns.Create(analytics[i], x, y, btnWidth, mainBtnHeight, analytics[i], analyticsClr[i], clrWhite, mainBtnFontSize);
+      int btnWidth = TextLenInPixel(analytics[i], mBFS);
+      mainBtns.Create(analytics[i], x, y, btnWidth, mBH, analytics[i], analyticsClr[i], clrWhite, mBFS);
       x = x + btnWidth + 5;
    }
 }
